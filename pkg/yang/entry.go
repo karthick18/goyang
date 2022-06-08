@@ -628,6 +628,10 @@ func ToEntry(n Node) (e *Entry) {
 	case *Uses:
 		g := FindGrouping(s, s.Name, map[string]bool{})
 		if g == nil {
+			if ms.ParseOptions.IgnoreModuleResolveErrors {
+				return nil
+			}
+
 			return newError(n, "unknown group: %s", s.Name)
 		}
 		// We need to return a duplicate so we resolve properly
@@ -849,9 +853,11 @@ func ToEntry(n Node) (e *Entry) {
 		case "uses":
 			for _, a := range fv.Interface().([]*Uses) {
 				grouping := ToEntry(a)
-				e.merge(nil, nil, grouping)
-				if ms.ParseOptions.StoreUses {
-					e.Uses = append(e.Uses, &UsesStmt{a, grouping.shallowDup()})
+				if grouping != nil {
+					e.merge(nil, nil, grouping)
+					if ms.ParseOptions.StoreUses {
+						e.Uses = append(e.Uses, &UsesStmt{a, grouping.shallowDup()})
+					}
 				}
 			}
 		case "type":
@@ -1077,7 +1083,7 @@ func (e *Entry) Augment(addErrors bool) (processed, skipped int) {
 	for _, a := range e.Augments {
 		target := a.Find(a.Name)
 		if target == nil {
-			if addErrors {
+			if !RootNode(e.Node).Modules.ParseOptions.IgnoreModuleResolveErrors && addErrors {
 				e.errorf("%s: augment %s not found", Source(a.Node), a.Name)
 			}
 			skipped++
@@ -1292,11 +1298,22 @@ func (e *Entry) Find(name string) *Entry {
 			e = e.Parent
 		}
 		if prefix, _ := getPrefix(parts[0]); prefix != "" {
-			m := module(FindModuleByPrefix(contextNode, prefix))
+			mod := FindModuleByPrefix(contextNode, prefix)
+			if mod == nil {
+				if RootNode(e.Node).Modules.ParseOptions.IgnoreModuleResolveErrors {
+					return nil
+				}
+
+				e.addError(fmt.Errorf("cannot find module giving prefix %q within context entry %q", prefix, e.Path()))
+				return nil
+			}
+
+			m := module(mod)
 			if m == nil {
 				e.addError(fmt.Errorf("cannot find module giving prefix %q within context entry %q", prefix, e.Path()))
 				return nil
 			}
+
 			if m != e.Node.(*Module) {
 				e = ToEntry(m)
 			}

@@ -1,0 +1,454 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: fps.netconf.ciena.com
+spec:
+  group: netconf.ciena.com
+  names:
+    kind: Fp
+    listKind: FpList
+    plural: fps
+    shortNames:
+    - fps
+    singular: fp
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              adminState:
+                enum:
+                - Disabled
+                - Enabled
+                type: string
+              classifierList:
+                items:
+                  type: string
+                type: array
+              classifierListPrecedence:
+                type: integer
+              cosToFrameMap:
+                type: string
+              description:
+                type: string
+              egressL2Transform:
+                items:
+                  properties:
+                    egressName:
+                      type: string
+                    frameType:
+                      properties:
+                        stack:
+                          properties:
+                            vlanStack:
+                              items:
+                                properties:
+                                  action:
+                                    properties:
+                                      pop:
+                                        properties:
+                                          popType:
+                                            type: string
+                                        type: object
+                                      push:
+                                        properties:
+                                          pushDei:
+                                            enum:
+                                            - Disabled
+                                            - Enabled
+                                            type: string
+                                          pushPcp:
+                                            enum:
+                                            - Map
+                                            - Pcp_0
+                                            - Pcp_1
+                                            - Pcp_2
+                                            - Pcp_3
+                                            - Pcp_4
+                                            - Pcp_5
+                                            - Pcp_6
+                                            - Pcp_7
+                                            type: string
+                                          pushTpid:
+                                            enum:
+                                            - Tpid_8100
+                                            - Tpid_88A8
+                                            - Tpid_9100
+                                            type: string
+                                          pushVid:
+                                            type: string
+                                        type: object
+                                      stamp:
+                                        properties:
+                                          stampDei:
+                                            enum:
+                                            - Disabled
+                                            - Enabled
+                                            - NoOp
+                                            type: string
+                                          stampPcp:
+                                            enum:
+                                            - Map
+                                            - NoOp
+                                            - Pcp_0
+                                            - Pcp_1
+                                            - Pcp_2
+                                            - Pcp_3
+                                            - Pcp_4
+                                            - Pcp_5
+                                            - Pcp_6
+                                            - Pcp_7
+                                            type: string
+                                          stampTpid:
+                                            enum:
+                                            - NoOp
+                                            - Tpid_8100
+                                            - Tpid_88A8
+                                            - Tpid_9100
+                                            type: string
+                                          stampVid:
+                                            properties:
+                                              noOp:
+                                                properties:
+                                                  noOp:
+                                                    type: string
+                                                type: object
+                                              vidValue:
+                                                properties:
+                                                  stampVidValue:
+                                                    type: string
+                                                type: object
+                                            type: object
+                                        type: object
+                                    type: object
+                                  tag:
+                                    type: integer
+                                required:
+                                - tag
+                                type: object
+                              type: array
+                          type: object
+                        untagged:
+                          properties:
+                            untaggedDei:
+                              enum:
+                              - Disabled
+                              - Enabled
+                              type: string
+                            untaggedPcp:
+                              enum:
+                              - Map
+                              - Pcp_0
+                              - Pcp_1
+                              - Pcp_2
+                              - Pcp_3
+                              - Pcp_4
+                              - Pcp_5
+                              - Pcp_6
+                              - Pcp_7
+                              type: string
+                            untaggedTpid:
+                              enum:
+                              - Tpid_8100
+                              - Tpid_88A8
+                              - Tpid_9100
+                              type: string
+                            untaggedVid:
+                              type: string
+                          type: object
+                      type: object
+                  required:
+                  - egress-name
+                  type: object
+                type: array
+              egressL3Transform:
+                properties:
+                  map:
+                    properties:
+                      egressL3Mapped:
+                        type: string
+                    type: object
+                  remarkDscp:
+                    properties:
+                      egressRemarkDscpValue:
+                        type: integer
+                    type: object
+                type: object
+              fdName:
+                type: string
+              floodContainmentProfile:
+                type: string
+              frameToCos:
+                properties:
+                  fixed:
+                    properties:
+                      color:
+                        enum:
+                        - Green
+                        - Red
+                        - Yellow
+                        type: string
+                      cos:
+                        type: integer
+                    type: object
+                  map:
+                    properties:
+                      frameToCosMap:
+                        type: string
+                      mapPolicy:
+                        enum:
+                        - Dscp
+                        - DscpMplsTc
+                        - InnerTag
+                        - MplsTc
+                        - OuterTag
+                        type: string
+                    type: object
+                type: object
+              ingressL2Transform:
+                items:
+                  properties:
+                    frameType:
+                      properties:
+                        stack:
+                          properties:
+                            vlanStack:
+                              items:
+                                properties:
+                                  action:
+                                    properties:
+                                      pop:
+                                        properties:
+                                          popType:
+                                            type: string
+                                        type: object
+                                      push:
+                                        properties:
+                                          pushDei:
+                                            enum:
+                                            - Disabled
+                                            - Enabled
+                                            type: string
+                                          pushPcp:
+                                            enum:
+                                            - Map
+                                            - Pcp_0
+                                            - Pcp_1
+                                            - Pcp_2
+                                            - Pcp_3
+                                            - Pcp_4
+                                            - Pcp_5
+                                            - Pcp_6
+                                            - Pcp_7
+                                            type: string
+                                          pushTpid:
+                                            enum:
+                                            - Tpid_8100
+                                            - Tpid_88A8
+                                            - Tpid_9100
+                                            type: string
+                                          pushVid:
+                                            type: string
+                                        type: object
+                                      stamp:
+                                        properties:
+                                          stampDei:
+                                            enum:
+                                            - Disabled
+                                            - Enabled
+                                            - NoOp
+                                            type: string
+                                          stampPcp:
+                                            enum:
+                                            - Map
+                                            - NoOp
+                                            - Pcp_0
+                                            - Pcp_1
+                                            - Pcp_2
+                                            - Pcp_3
+                                            - Pcp_4
+                                            - Pcp_5
+                                            - Pcp_6
+                                            - Pcp_7
+                                            type: string
+                                          stampTpid:
+                                            enum:
+                                            - NoOp
+                                            - Tpid_8100
+                                            - Tpid_88A8
+                                            - Tpid_9100
+                                            type: string
+                                          stampVid:
+                                            properties:
+                                              noOp:
+                                                properties:
+                                                  noOp:
+                                                    type: string
+                                                type: object
+                                              vidValue:
+                                                properties:
+                                                  stampVidValue:
+                                                    type: string
+                                                type: object
+                                            type: object
+                                        type: object
+                                    type: object
+                                  tag:
+                                    type: integer
+                                required:
+                                - tag
+                                type: object
+                              type: array
+                          type: object
+                        untagged:
+                          properties:
+                            untaggedDei:
+                              enum:
+                              - Disabled
+                              - Enabled
+                              type: string
+                            untaggedPcp:
+                              enum:
+                              - Map
+                              - Pcp_0
+                              - Pcp_1
+                              - Pcp_2
+                              - Pcp_3
+                              - Pcp_4
+                              - Pcp_5
+                              - Pcp_6
+                              - Pcp_7
+                              type: string
+                            untaggedTpid:
+                              enum:
+                              - Tpid_8100
+                              - Tpid_88A8
+                              - Tpid_9100
+                              type: string
+                            untaggedVid:
+                              type: string
+                          type: object
+                      type: object
+                    ingressName:
+                      type: string
+                  required:
+                  - ingress-name
+                  type: object
+                type: array
+              ingressL3Transform:
+                properties:
+                  map:
+                    properties:
+                      ingressL3Mapped:
+                        type: string
+                    type: object
+                  remarkDscp:
+                    properties:
+                      ingressRemarkDscpValue:
+                        type: integer
+                    type: object
+                type: object
+              logicalPort:
+                type: string
+              macLearning:
+                enum:
+                - Disabled
+                - Enabled
+                type: string
+              meterProfile:
+                type: string
+              mtuSize:
+                type: integer
+              name:
+                type: string
+              normalizedVid:
+                items:
+                  properties:
+                    tag:
+                      type: integer
+                    vlanId:
+                      type: integer
+                  required:
+                  - tag
+                  type: object
+                type: array
+              pfgGroup:
+                enum:
+                - Dynamic
+                - Group_A
+                - Group_B
+                - Group_C
+                - Group_D
+                - Leaf
+                - Mesh
+                - Root
+                - Spoke
+                type: string
+              queueGroupInstance:
+                type: string
+              statsCollection:
+                enum:
+                - Off
+                - On
+                type: string
+              type:
+                properties:
+                  mplsPw:
+                    properties:
+                      mplsPw:
+                        type: string
+                    type: object
+                  other:
+                    properties:
+                      other:
+                        type: string
+                    type: object
+                  qInQ:
+                    properties:
+                      svlan:
+                        type: integer
+                    type: object
+                  uni:
+                    properties:
+                      uni:
+                        type: string
+                    type: object
+                type: object
+            required:
+            - name
+            type: object
+          status:
+            properties:
+              ready:
+                type: boolean
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

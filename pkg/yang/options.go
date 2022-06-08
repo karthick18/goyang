@@ -27,4 +27,7 @@ type Options struct {
 	// generated within the schema to store the logical grouping from which it
 	// is derived.
 	StoreUses bool
+
+	// IgnoreModuleResolveErrors specifies if module resolution errors can be ignored.
+	IgnoreModuleResolveErrors bool
 }

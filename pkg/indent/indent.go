@@ -45,6 +45,15 @@ func Bytes(indent, b []byte) []byte {
 	return bytes.Join(append([][]byte{{}}, lines...), indent)
 }
 
+func GetPrefix(num int) string {
+	prefix := ""
+	for i := 0; i < num; i++ {
+		prefix += " "
+	}
+
+	return prefix
+}
+
 // NewWriter returns an io.Writer that prefixes the lines written to it with
 // indent and then writes them to w.  The writer returns the number of bytes
 // written to the underlying Writer.

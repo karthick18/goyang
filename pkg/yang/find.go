@@ -53,6 +53,12 @@ func FindGrouping(n Node, name string, seen map[string]bool) *Grouping {
 		// Grab the Grouping field of the underlying structure.  n is
 		// always a pointer to a structure,
 		e := reflect.ValueOf(n).Elem()
+		if !e.IsValid() {
+			n = n.ParentNode()
+
+			continue
+		}
+
 		v := e.FieldByName("Grouping")
 		if v.IsValid() {
 			for _, g := range v.Interface().([]*Grouping) {

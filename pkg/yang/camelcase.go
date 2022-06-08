@@ -40,9 +40,17 @@ func isASCIIDigit(c byte) bool {
 // it's so remote we're prepared to pretend it's nonexistent - since the C++
 // generator lowercases names, it's extremely unlikely to have two fields with
 // different capitalizations. In short, _my_field-name_2 becomes XMyFieldName_2.
-func CamelCase(s string) string {
+func CamelCase(s string, optPascalCase ...bool) string {
 	if s == "" {
 		return ""
+	}
+
+	var pascalCase bool
+
+	if len(optPascalCase) == 0 {
+		pascalCase = true
+	} else {
+		pascalCase = optPascalCase[0]
 	}
 
 	fix := func(c byte) byte {
@@ -56,7 +64,12 @@ func CamelCase(s string) string {
 	i := 0
 	if fix(s[0]) == '_' {
 		// Need a capital letter; drop the '_'.
-		t = append(t, 'X')
+		var b byte = 'X'
+		if !pascalCase {
+			b = 'x'
+		}
+
+		t = append(t, b)
 		i++
 	}
 
@@ -76,10 +89,12 @@ func CamelCase(s string) string {
 		// Assume we have a letter now - if not, it's a bogus identifier.
 		// The next word is a sequence of characters that must start upper case.
 		if isASCIILower(c) {
-			c ^= ' ' // Make it a capital letter.
+			if i > 0 || pascalCase {
+				c ^= ' ' // Make it a capital letter.
+			}
 		}
 		start := len(t)
-		t = append(t, c) // Guaranteed not lower case.
+		t = append(t, c) // Guaranteed not lower case if pascalCase is enabled
 		// Accept lower case sequence that follows.
 		for i+1 < len(s) && isASCIILower(s[i+1]) {
 			i++

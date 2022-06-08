@@ -57,7 +57,7 @@ import (
 // be called once with the set of yang Entry trees generated.
 type formatter struct {
 	name  string
-	f     func(io.Writer, []*yang.Entry)
+	f     func(io.Writer, []*yang.Entry, []string)
 	help  string
 	flags *getopt.Set
 }
@@ -93,9 +93,12 @@ func main() {
 	var help bool
 	var paths []string
 	var ignoreSubmoduleCircularDependencies bool
+	var ignoreModuleResolveErrors bool
+
 	getopt.ListVarLong(&paths, "path", 'p', "comma separated list of directories to add to search path", "DIR[,DIR...]")
 	getopt.StringVarLong(&format, "format", 'f', "format to display: "+strings.Join(formats, ", "), "FORMAT")
 	getopt.StringVarLong(&traceP, "trace", 't', "write trace into to TRACEFILE", "TRACEFILE")
+	getopt.BoolVarLong(&ignoreModuleResolveErrors, "ignore-resolve-errors", 'r', "ignore module resolve errors")
 	getopt.BoolVarLong(&help, "help", 'h', "display help")
 	getopt.BoolVarLong(&ignoreSubmoduleCircularDependencies, "ignore-circdep", 'g', "ignore circular dependencies between submodules")
 	getopt.SetParameters("[FORMAT OPTIONS] [SOURCE] [...]")
@@ -151,6 +154,7 @@ Formats:
 
 	ms := yang.NewModules()
 	ms.ParseOptions.IgnoreSubmoduleCircularDependencies = ignoreSubmoduleCircularDependencies
+	ms.ParseOptions.IgnoreModuleResolveErrors = ignoreModuleResolveErrors
 
 	for _, path := range paths {
 		expanded, err := yang.PathsWithModules(path)
@@ -210,5 +214,5 @@ Formats:
 		entries[x] = yang.ToEntry(mods[n])
 	}
 
-	formatters[format].f(os.Stdout, entries)
+	formatters[format].f(os.Stdout, entries, files)
 }

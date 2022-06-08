@@ -139,7 +139,14 @@ func (s *Module) Kind() string {
 	}
 	return "module"
 }
-func (s *Module) ParentNode() Node        { return s.Parent }
+func (s *Module) ParentNode() Node {
+	if s == nil {
+		return nil
+	}
+
+	return s.Parent
+}
+
 func (s *Module) NName() string           { return s.Name }
 func (s *Module) Statement() *Statement   { return s.Source }
 func (s *Module) Exts() []*Statement      { return s.Extensions }

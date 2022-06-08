@@ -1,0 +1,408 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: sfs.netconf.ciena.com
+spec:
+  group: netconf.ciena.com
+  names:
+    kind: Sf
+    listKind: SfList
+    plural: sfs
+    shortNames:
+    - sfs
+    singular: sf
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              sfName:
+                type: string
+              sfOperation:
+                properties:
+                  state:
+                    enum:
+                    - Resume
+                    - Shutdown
+                    - Start
+                    - Suspend
+                    type: string
+                type: object
+              sfState:
+                properties:
+                  console:
+                    properties:
+                      vncPort:
+                        type: integer
+                    type: object
+                  cpuSystemTime:
+                    type: string
+                  cpuTime:
+                    type: string
+                  cpuUserTime:
+                    type: string
+                  cpuUtilization:
+                    type: integer
+                  interfaces:
+                    items:
+                      properties:
+                        macAddress:
+                          type: string
+                        name:
+                          type: string
+                        networkType:
+                          enum:
+                          - Default
+                          - Dhcp
+                          - Physical
+                          - Tap
+                          - Vhost
+                          type: string
+                        stats:
+                          properties:
+                            rxBytes:
+                              type: string
+                            rxDrops:
+                              type: string
+                            rxErrors:
+                              type: string
+                            rxPkts:
+                              type: string
+                            txBytes:
+                              type: string
+                            txDrops:
+                              type: string
+                            txErrors:
+                              type: string
+                            txPkts:
+                              type: string
+                          type: object
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  memAllocated:
+                    type: string
+                  memAvailable:
+                    type: string
+                  memMajorFault:
+                    type: string
+                  memMinorFault:
+                    type: string
+                  memResident:
+                    type: string
+                  memSwapIn:
+                    type: string
+                  memSwapOut:
+                    type: string
+                  memUnused:
+                    type: string
+                  numCpus:
+                    type: integer
+                  operState:
+                    enum:
+                    - Blocked
+                    - Crashed
+                    - EttpOwnershipChangePending
+                    - ImageDownloadFailed
+                    - ImageDownloaded
+                    - ImageDownloading
+                    - ImgMaxSizeReached
+                    - Init
+                    - InvalidXml
+                    - NoState
+                    - Paused
+                    - Running
+                    - Shutdown
+                    - Shutoff
+                    - ShuttingDown
+                    - XmlDownloadFailed
+                    - XmlDownloaded
+                    - XmlDownloading
+                    type: string
+                  sfUuid:
+                    type: string
+                  snapshots:
+                    properties:
+                      currentSnapshotName:
+                        type: string
+                      snapshot:
+                        items:
+                          properties:
+                            snapshotName:
+                              type: string
+                            snapshotSize:
+                              type: integer
+                            snapshotStatus:
+                              enum:
+                              - Snapshot_Failed
+                              - Snapshot_Inprogress
+                              - Snapshot_Successful
+                              type: string
+                          required:
+                          - snapshot-name
+                          type: object
+                        type: array
+                    type: object
+                  vcpuPinning:
+                    items:
+                      properties:
+                        cpuId:
+                          items:
+                            type: integer
+                          type: array
+                        vcpuId:
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+              sfType:
+                enum:
+                - Vm
+                - Vnf
+                type: string
+              sfo:
+                properties:
+                  cloudInit:
+                    properties:
+                      dataSource:
+                        properties:
+                          noCloud:
+                            properties:
+                              source:
+                                properties:
+                                  cdrom:
+                                    properties:
+                                      isoFile:
+                                        type: string
+                                      sfDeviceLoc:
+                                        type: string
+                                      vdiskDriverType:
+                                        enum:
+                                        - Ide
+                                        - Virtio
+                                        type: string
+                                    type: object
+                                type: object
+                            type: object
+                        type: object
+                      metaData:
+                        type: string
+                      userData:
+                        type: string
+                    type: object
+                  console:
+                    properties:
+                      adminState:
+                        enum:
+                        - Disabled
+                        - Enabled
+                        type: string
+                      type:
+                        properties:
+                          vnc:
+                            properties:
+                              vncPassword:
+                                type: string
+                            type: object
+                        type: object
+                    type: object
+                  imageMgmt:
+                    properties:
+                      imageEncoding:
+                        enum:
+                        - Qcow2
+                        - Raw
+                        type: string
+                      imagePath:
+                        type: string
+                      imageRef:
+                        type: string
+                      imageSize:
+                        type: integer
+                      libvirtXmlPath:
+                        type: string
+                      protocol:
+                        properties:
+                          ftp:
+                            properties:
+                              ftpPassword:
+                                type: string
+                              ftpUsername:
+                                type: string
+                            type: object
+                          http:
+                            properties:
+                              httpChecksumFilePath:
+                                type: string
+                              httpPassword:
+                                type: string
+                              httpUsername:
+                                type: string
+                            type: object
+                          https:
+                            properties:
+                              httpsChecksumFilePath:
+                                type: string
+                              httpsPassword:
+                                type: string
+                              httpsUsername:
+                                type: string
+                            type: object
+                          scp:
+                            properties:
+                              scpPassword:
+                                type: string
+                              scpUsername:
+                                type: string
+                            type: object
+                          sftp:
+                            properties:
+                              sftpPassword:
+                                type: string
+                              sftpUsername:
+                                type: string
+                            type: object
+                        type: object
+                      sfDeviceLoc:
+                        type: string
+                      vdiskDriverType:
+                        enum:
+                        - Ide
+                        - Virtio
+                        type: string
+                    type: object
+                  networkInterface:
+                    items:
+                      properties:
+                        ettp:
+                          type: string
+                        logicalPort:
+                          type: string
+                        name:
+                          type: string
+                        networkModel:
+                          enum:
+                          - E1000
+                          - Virtio
+                          type: string
+                        networkType:
+                          enum:
+                          - Default
+                          - Dhcp
+                          - Physical
+                          - Tap
+                          - Vhost
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  sfoMetadata:
+                    properties:
+                      cpuConfig:
+                        enum:
+                        - HostPassthrough
+                        type: string
+                      cpus:
+                        type: integer
+                      memory:
+                        type: integer
+                      numaNode:
+                        items:
+                          properties:
+                            memory:
+                              type: integer
+                            nodeId:
+                              type: integer
+                          required:
+                          - node-id
+                          type: object
+                        type: array
+                      sfVdisk:
+                        items:
+                          properties:
+                            bootOrder:
+                              type: integer
+                            sfDeviceLoc:
+                              type: string
+                            sfVdisk:
+                              properties:
+                                vdisk:
+                                  properties:
+                                    vdiskRef:
+                                      type: string
+                                  type: object
+                              type: object
+                            vdiskDriverType:
+                              enum:
+                              - Ide
+                              - Virtio
+                              type: string
+                          required:
+                          - sf-device-loc
+                          type: object
+                        type: array
+                      vcpus:
+                        items:
+                          properties:
+                            coreAffinity:
+                              enum:
+                              - Exclusive
+                              type: string
+                            socketId:
+                              type: integer
+                            threadAffinity:
+                              enum:
+                              - Shared
+                              type: string
+                            vcpuGroupName:
+                              type: string
+                            vcpuIds:
+                              items:
+                                type: integer
+                              type: array
+                          required:
+                          - vcpu-group-name
+                          type: object
+                        type: array
+                    type: object
+                type: object
+            required:
+            - sf-name
+            type: object
+          status:
+            properties:
+              ready:
+                type: boolean
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

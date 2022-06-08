@@ -126,6 +126,10 @@ func (t *Typedef) resolve(d *typeDictionary) []error {
 		return errs
 	}
 
+	if t.Type.YangType == nil {
+		return nil
+	}
+
 	// Make a copy of the YangType we are based on and then
 	// update it with local information.
 	y := *t.Type.YangType
@@ -170,6 +174,7 @@ func (t *Type) resolve(d *typeDictionary) (errs []error) {
 
 	prefix, name := getPrefix(t.Name)
 	root := RootNode(t)
+	ms := root.Modules
 	rootPrefix := root.GetPrefix()
 
 	source := "unknown"
@@ -211,6 +216,10 @@ check:
 		var err error
 		td, err = d.findExternal(t, prefix, name)
 		if err != nil {
+			if ms.ParseOptions.IgnoreModuleResolveErrors {
+				return nil
+			}
+
 			return []error{err}
 		}
 	}
@@ -221,6 +230,10 @@ check:
 	// Make a copy of the typedef we are based on so we can
 	// augment it.
 	if td.YangType == nil {
+		if ms.ParseOptions.IgnoreModuleResolveErrors {
+			return nil
+		}
+
 		return []error{fmt.Errorf("%s: no YangType defined for %s %s", Source(td), source, td.Name)}
 	}
 	y := *td.YangType

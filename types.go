@@ -41,7 +41,7 @@ func init() {
 	flags.BoolVarLong(&typesVerbose, "types_verbose", 0, "include base information")
 }
 
-func doTypes(w io.Writer, entries []*yang.Entry) {
+func doTypes(w io.Writer, entries []*yang.Entry, files []string) {
 	types := Types{}
 	for _, e := range entries {
 		types.AddEntry(e)
