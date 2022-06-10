@@ -48,8 +48,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/openconfig/goyang/pkg/indent"
-	"github.com/openconfig/goyang/pkg/yang"
+	"github.com/karthick18/goyang/pkg/indent"
+	"github.com/karthick18/goyang/pkg/yang"
 	"github.com/pborman/getopt"
 )
 

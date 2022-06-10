@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/clbanning/mxj/v2"
-	"github.com/openconfig/goyang/pkg/yang"
+	"github.com/karthick18/goyang/pkg/yang"
 	"os"
 	"strings"
 )
@@ -27,14 +27,14 @@ func decodeJsonToXml(jsonFile string, jsonOutputFile string, root *yang.Entry, c
 	var object map[string]interface{}
 	data, err := os.ReadFile(jsonFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error reading json file: %w\n", err)
+		fmt.Fprintf(os.Stderr, "error reading json file: %v\n", err)
 
 		return
 	}
 
 	err = json.Unmarshal(data, &object)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error json unmarshal: %w\n", err)
+		fmt.Fprintf(os.Stderr, "error json unmarshal: %v\n", err)
 
 		return
 	}
@@ -67,19 +67,22 @@ func decodeJsonToXml(jsonFile string, jsonOutputFile string, root *yang.Entry, c
 		return
 	}
 
+	//	mxj.CastValuesToInt(true)
+	//	mxj.CastValuesToBool(true)
+	//	mxj.CastValuesToFloat(false)
 	xmlObject, err := mxj.NewMapXml(xmlData, true)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "xml unmarshal error: %w", err)
+		fmt.Fprintf(os.Stderr, "xml unmarshal error: %v", err)
 
 		return
 	}
 
 	xmlObject = xmlObject[root.Name].(map[string]interface{})
-	fmt.Fprintf(os.Stdout, "\n\nxml unmarshalled object:\n%s\n\n", map[string]interface{}(xmlObject))
+	fmt.Fprintf(os.Stdout, "\n\nxml unmarshalled object:\n%v\n\n", map[string]interface{}(xmlObject))
 
 	data, err = json.MarshalIndent(xmlObject, "", " ")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "json marshal error: %w\n", err)
+		fmt.Fprintf(os.Stderr, "json marshal error: %v\n", err)
 
 		return
 	}
@@ -90,7 +93,7 @@ func decodeJsonToXml(jsonFile string, jsonOutputFile string, root *yang.Entry, c
 func encodeXml(xmlMap map[string]interface{}, root string) ([]byte, error) {
 	data, err := mxj.AnyXmlIndent(xmlMap, "", " ", root)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error marshaling map to xml: %w", err)
+		fmt.Fprintf(os.Stderr, "error marshaling map to xml: %v", err)
 
 		return nil, err
 	}
