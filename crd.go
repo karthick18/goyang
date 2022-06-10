@@ -120,6 +120,8 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 			fmt.Fprintln(&b, "  type: object")
 			//fmt.Fprintln(w, b.String())
 			executeTemplate(rootNode, instanceNode, b.String())
+
+			decodeJsonToXml("data.json", "data-xml.json", processEntry, false)
 		}
 	}
 }

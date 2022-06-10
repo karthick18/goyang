@@ -2,4 +2,5 @@ tags
 goyang
 *~
 *.swp
-
+*.txt
+*.json

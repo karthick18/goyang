@@ -14,13 +14,26 @@
 
 package yang
 
+import (
+	"strings"
+)
+
 var knownWords = map[string]string{
 	"Ietf": "IETF",
+}
+
+var knownWordsIndirect = map[string]string{
+	"IETF": "Ietf",
 }
 
 // Is c an ASCII lower-case letter?
 func isASCIILower(c byte) bool {
 	return 'a' <= c && c <= 'z'
+}
+
+// Is c an ASCII upper-case letter?
+func isASCIIUpper(c byte) bool {
+	return 'A' <= c && c <= 'Z'
 }
 
 // Is c an ASCII digit?
@@ -105,5 +118,58 @@ func CamelCase(s string, optPascalCase ...bool) string {
 			t = append(t[:start], []byte(kn)...)
 		}
 	}
+	return string(t)
+}
+
+func CamelCaseToDash(s string, hyphenateAfterDigit ...bool) string {
+	hyphenateDigit := false
+
+	if len(hyphenateAfterDigit) > 0 {
+		hyphenateDigit = hyphenateAfterDigit[0]
+	}
+
+	if s == "" {
+		return ""
+	}
+
+	t := make([]byte, 0, 32)
+
+	for i := 0; i < len(s); i++ {
+		for val, kn := range knownWordsIndirect {
+			if strings.HasPrefix(s[i:], val) {
+				t = append(t, []byte(kn)...)
+				i += len(val)
+				break
+			}
+		}
+
+		if i >= len(s) {
+			break
+		}
+
+		c := s[i]
+
+		if isASCIIDigit(c) && !hyphenateDigit {
+			t = append(t, c)
+
+			continue
+		}
+
+		if c == '_' {
+			t = append(t, byte('-'))
+
+			continue
+		}
+
+		if isASCIIUpper(c) {
+			c ^= ' ' // Make it lower case
+		}
+
+		t = append(t, c)
+		if i+1 < len(s) && isASCIIUpper(s[i+1]) {
+			t = append(t, byte('-'))
+		}
+	}
+
 	return string(t)
 }
