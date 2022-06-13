@@ -1,0 +1,52 @@
+{
+ "addressFamily": [
+  {
+   "afi": "Ipv4",
+   "routeReflector": true,
+   "safi": "Unicast",
+   "segmentRouting": "Disable",
+   "tableMap": {
+    "filter": true
+   }
+  },
+  {
+   "afi": "Ipv4",
+   "routeReflector": true,
+   "safi": "LabeledUnicast",
+   "segmentRouting": "Disable",
+   "tableMap": {
+    "filter": true
+   }
+  }
+ ],
+ "as": 64000,
+ "clusterId": "3.3.3.3",
+ "fastExternalFailover": true,
+ "gracefulRestart": {
+  "restartTime": 120,
+  "stalepathTime": 360
+ },
+ "holdTime": 180,
+ "inboundRouteFilter": true,
+ "keepaliveInterval": 60,
+ "localPreference": 100,
+ "nextHopTracking": {
+  "delay": 30,
+  "enable": true
+ },
+ "peer": [
+  {
+   "address": "12.0.0.1",
+   "remoteAs": 64001
+  },
+  {
+   "address": "32.0.0.1",
+   "remoteAs": 64002
+  }
+ ],
+ "routeSelectionOptions": {
+  "externalCompareRouterId": true
+ },
+ "routerId": "3.3.3.3",
+ "scanTime": 60
+}
