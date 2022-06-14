@@ -610,8 +610,8 @@ spec:
                           minimum: 16000
                           maximum: 1048575
                       required:
-                      - lower-bound
-                      - upper-bound
+                      - lowerBound
+                      - upperBound
                       type: object
                     type: array
                 type: object

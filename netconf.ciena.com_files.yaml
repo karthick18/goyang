@@ -105,7 +105,7 @@ spec:
                     type: integer
                 type: object
             required:
-            - file-name
+            - fileName
             type: object
           status:
             properties:

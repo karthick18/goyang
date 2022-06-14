@@ -181,7 +181,7 @@ spec:
                           type: object
                       type: object
                   required:
-                  - egress-name
+                  - egressName
                   type: object
                 type: array
               egressL3Transform:
@@ -361,7 +361,7 @@ spec:
                     ingressName:
                       type: string
                   required:
-                  - ingress-name
+                  - ingressName
                   type: object
                 type: array
               ingressL3Transform:

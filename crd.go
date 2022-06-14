@@ -272,7 +272,7 @@ func emitCrdRequired(w io.Writer, e *yang.Entry, prefix string) {
 	fmt.Fprintf(w, "%srequired:\n", prefix)
 
 	for _, field := range required {
-		fmt.Fprintf(w, "%s- %s\n", prefix, field)
+		fmt.Fprintf(w, "%s- %s\n", prefix, yang.CamelCase(field, false))
 	}
 }
 
