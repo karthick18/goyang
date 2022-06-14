@@ -302,4 +302,19 @@ func emitCrdType(w io.Writer, e *yang.Entry, prefix string) {
 	}
 
 	fmt.Fprintf(w, "%stype: %s\n", prefix, crdType)
+
+	// add ranges for integers
+	if crdType == "integer" && len(e.Type.Range) == 1 && e.Type.Range[0].Valid() {
+		min, err := e.Type.Range[0].Min.Int()
+		if err != nil {
+			return
+		}
+
+		max, err := e.Type.Range[0].Max.Int()
+		if err != nil {
+			return
+		}
+		fmt.Fprintf(w, "%sminimum: %d\n", prefix, min)
+		fmt.Fprintf(w, "%smaximum: %d\n", prefix, max)
+	}
 }

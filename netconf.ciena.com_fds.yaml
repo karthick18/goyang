@@ -55,6 +55,8 @@ spec:
                         type: string
                       cos:
                         type: integer
+                        minimum: 0
+                        maximum: 63
                     type: object
                   map:
                     properties:
@@ -111,6 +113,8 @@ spec:
                                   type: object
                                 tag:
                                   type: integer
+                                  minimum: 0
+                                  maximum: 255
                               required:
                               - tag
                               type: object
@@ -144,6 +148,8 @@ spec:
                 type: string
               vlanId:
                 type: integer
+                minimum: 1
+                maximum: 4094
             required:
             - name
             type: object

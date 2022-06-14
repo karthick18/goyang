@@ -46,6 +46,8 @@ spec:
                 type: array
               classifierListPrecedence:
                 type: integer
+                minimum: 0
+                maximum: 4294967295
               cosToFrameMap:
                 type: string
               description:
@@ -142,6 +144,8 @@ spec:
                                     type: object
                                   tag:
                                     type: integer
+                                    minimum: 0
+                                    maximum: 255
                                 required:
                                 - tag
                                 type: object
@@ -191,6 +195,8 @@ spec:
                     properties:
                       egressRemarkDscpValue:
                         type: integer
+                        minimum: 0
+                        maximum: 63
                     type: object
                 type: object
               fdName:
@@ -209,6 +215,8 @@ spec:
                         type: string
                       cos:
                         type: integer
+                        minimum: 0
+                        maximum: 63
                     type: object
                   map:
                     properties:
@@ -314,6 +322,8 @@ spec:
                                     type: object
                                   tag:
                                     type: integer
+                                    minimum: 0
+                                    maximum: 255
                                 required:
                                 - tag
                                 type: object
@@ -365,6 +375,8 @@ spec:
                     properties:
                       ingressRemarkDscpValue:
                         type: integer
+                        minimum: 0
+                        maximum: 63
                     type: object
                 type: object
               logicalPort:
@@ -378,6 +390,8 @@ spec:
                 type: string
               mtuSize:
                 type: integer
+                minimum: 0
+                maximum: 4294967295
               name:
                 type: string
               normalizedVid:
@@ -385,8 +399,12 @@ spec:
                   properties:
                     tag:
                       type: integer
+                      minimum: 0
+                      maximum: 255
                     vlanId:
                       type: integer
+                      minimum: 1
+                      maximum: 4094
                   required:
                   - tag
                   type: object
@@ -426,6 +444,8 @@ spec:
                     properties:
                       svlan:
                         type: integer
+                        minimum: 0
+                        maximum: 4294967295
                     type: object
                   uni:
                     properties:

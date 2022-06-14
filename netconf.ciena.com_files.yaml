@@ -45,12 +45,16 @@ spec:
                     type: string
                   fileDownloadSize:
                     type: integer
+                    minimum: 0
+                    maximum: 4294967295
                   fileDownloadUri:
                     type: string
                   fileIdentifier:
                     type: string
                   fileMaxSize:
                     type: integer
+                    minimum: 0
+                    maximum: 4294967295
                   fileType:
                     enum:
                     - Any
@@ -74,6 +78,8 @@ spec:
                 properties:
                   downloadProgress:
                     type: integer
+                    minimum: 0
+                    maximum: 255
                   downloadStatus:
                     enum:
                     - Downloaded
@@ -87,6 +93,8 @@ spec:
                     type: string
                   uploadProgress:
                     type: integer
+                    minimum: 0
+                    maximum: 255
                   uploadStatus:
                     enum:
                     - Uploaded

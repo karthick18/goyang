@@ -53,6 +53,8 @@ spec:
                     properties:
                       vncPort:
                         type: integer
+                        minimum: 0
+                        maximum: 65535
                     type: object
                   cpuSystemTime:
                     type: integer
@@ -62,6 +64,8 @@ spec:
                     type: integer
                   cpuUtilization:
                     type: integer
+                    minimum: 0
+                    maximum: 100
                   interfaces:
                     items:
                       properties:
@@ -118,6 +122,8 @@ spec:
                     type: integer
                   numCpus:
                     type: integer
+                    minimum: 0
+                    maximum: 4294967295
                   operState:
                     enum:
                     - Blocked
@@ -152,6 +158,8 @@ spec:
                               type: string
                             snapshotSize:
                               type: integer
+                              minimum: 0
+                              maximum: 4294967295
                             snapshotStatus:
                               enum:
                               - Snapshot_Failed
@@ -169,9 +177,13 @@ spec:
                         cpuId:
                           items:
                             type: integer
+                            minimum: 0
+                            maximum: 65535
                           type: array
                         vcpuId:
                           type: integer
+                          minimum: 0
+                          maximum: 65535
                       type: object
                     type: array
                 type: object
@@ -239,6 +251,8 @@ spec:
                         type: string
                       imageSize:
                         type: integer
+                        minimum: 0
+                        maximum: 65535
                       libvirtXmlPath:
                         type: string
                       protocol:
@@ -325,15 +339,23 @@ spec:
                         type: string
                       cpus:
                         type: integer
+                        minimum: 0
+                        maximum: 65535
                       memory:
                         type: integer
+                        minimum: 0
+                        maximum: 4294967295
                       numaNode:
                         items:
                           properties:
                             memory:
                               type: integer
+                              minimum: 0
+                              maximum: 4294967295
                             nodeId:
                               type: integer
+                              minimum: 0
+                              maximum: 255
                           required:
                           - node-id
                           type: object
@@ -343,6 +365,8 @@ spec:
                           properties:
                             bootOrder:
                               type: integer
+                              minimum: 1
+                              maximum: 255
                             sfDeviceLoc:
                               type: string
                             sfVdisk:
@@ -371,6 +395,8 @@ spec:
                               type: string
                             socketId:
                               type: integer
+                              minimum: 0
+                              maximum: 255
                             threadAffinity:
                               enum:
                               - Shared
@@ -380,6 +406,8 @@ spec:
                             vcpuIds:
                               items:
                                 type: integer
+                                minimum: 0
+                                maximum: 65535
                               type: array
                           required:
                           - vcpu-group-name

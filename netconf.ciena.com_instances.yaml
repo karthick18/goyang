@@ -43,6 +43,8 @@ spec:
                       properties:
                         bestCount:
                           type: integer
+                          minimum: 2
+                          maximum: 3
                         install:
                           type: boolean
                         selectAll:
@@ -162,6 +164,8 @@ spec:
                 type: array
               as:
                 type: integer
+                minimum: 1
+                maximum: 4294967295
               clusterId:
                 type: string
               fastExternalFailover:
@@ -170,15 +174,23 @@ spec:
                 properties:
                   restartTime:
                     type: integer
+                    minimum: 1
+                    maximum: 3600
                   stalepathTime:
                     type: integer
+                    minimum: 1
+                    maximum: 3600
                 type: object
               holdTime:
                 type: integer
+                minimum: 0
+                maximum: 65535
               inboundRouteFilter:
                 type: boolean
               keepaliveInterval:
                 type: integer
+                minimum: 0
+                maximum: 65535
               l2VpnVpls:
                 items:
                   properties:
@@ -209,6 +221,8 @@ spec:
                 type: array
               localPreference:
                 type: integer
+                minimum: 0
+                maximum: 4294967295
               logPeerChanges:
                 type: boolean
               mplsResolution:
@@ -217,6 +231,8 @@ spec:
                 properties:
                   delay:
                     type: integer
+                    minimum: 1
+                    maximum: 100
                   enable:
                     type: boolean
                 type: object
@@ -234,6 +250,8 @@ spec:
                             properties:
                               bestCount:
                                 type: integer
+                                minimum: 2
+                                maximum: 3
                               selectAll:
                                 type: boolean
                               type:
@@ -248,6 +266,8 @@ spec:
                             type: string
                           allowAsIn:
                             type: integer
+                            minimum: 1
+                            maximum: 10
                           allowEbgpSr:
                             enum:
                             - Disable
@@ -291,6 +311,8 @@ spec:
                             properties:
                               maximumPrefixes:
                                 type: integer
+                                minimum: 1
+                                maximum: 4294967295
                               warningOnly:
                                 type: boolean
                             type: object
@@ -333,6 +355,8 @@ spec:
                       type: object
                     connectRetryInterval:
                       type: integer
+                      minimum: 1
+                      maximum: 65535
                     description:
                       type: string
                     ebgpMultihop:
@@ -341,22 +365,34 @@ spec:
                           type: boolean
                         multihopttl:
                           type: integer
+                          minimum: 1
+                          maximum: 255
                       type: object
                     gracefulRestart:
                       properties:
                         restartTime:
                           type: integer
+                          minimum: 1
+                          maximum: 3600
                       type: object
                     holdTime:
                       type: integer
+                      minimum: 0
+                      maximum: 65535
                     keepaliveInterval:
                       type: integer
+                      minimum: 0
+                      maximum: 65535
                     localAs:
                       type: integer
+                      minimum: 1
+                      maximum: 4294967295
                     localAsOptions:
                       type: integer
                     minimumAdvertisementInterval:
                       type: integer
+                      minimum: 0
+                      maximum: 65535
                     passive:
                       type: boolean
                     password:
@@ -365,6 +401,8 @@ spec:
                       type: string
                     remoteAs:
                       type: integer
+                      minimum: 1
+                      maximum: 4294967295
                     shutdown:
                       type: boolean
                     updateSourceInterface:
@@ -385,6 +423,8 @@ spec:
                             properties:
                               bestCount:
                                 type: integer
+                                minimum: 2
+                                maximum: 3
                               selectAll:
                                 type: boolean
                               type:
@@ -399,6 +439,8 @@ spec:
                             type: string
                           allowAsIn:
                             type: integer
+                            minimum: 1
+                            maximum: 10
                           allowEbgpSr:
                             enum:
                             - Disable
@@ -442,6 +484,8 @@ spec:
                             properties:
                               maximumPrefixes:
                                 type: integer
+                                minimum: 1
+                                maximum: 4294967295
                               warningOnly:
                                 type: boolean
                             type: object
@@ -477,6 +521,8 @@ spec:
                       type: array
                     connectRetryInterval:
                       type: integer
+                      minimum: 1
+                      maximum: 65535
                     description:
                       type: string
                     ebgpMultihop:
@@ -485,22 +531,34 @@ spec:
                           type: boolean
                         multihopttl:
                           type: integer
+                          minimum: 1
+                          maximum: 255
                       type: object
                     gracefulRestart:
                       properties:
                         restartTime:
                           type: integer
+                          minimum: 1
+                          maximum: 3600
                       type: object
                     holdTime:
                       type: integer
+                      minimum: 0
+                      maximum: 65535
                     keepaliveInterval:
                       type: integer
+                      minimum: 0
+                      maximum: 65535
                     localAs:
                       type: integer
+                      minimum: 1
+                      maximum: 4294967295
                     localAsOptions:
                       type: integer
                     minimumAdvertisementInterval:
                       type: integer
+                      minimum: 0
+                      maximum: 65535
                     name:
                       type: string
                     passive:
@@ -509,6 +567,8 @@ spec:
                       type: string
                     remoteAs:
                       type: integer
+                      minimum: 1
+                      maximum: 4294967295
                     shutdown:
                       type: boolean
                     updateSourceInterface:
@@ -534,6 +594,8 @@ spec:
                 type: string
               scanTime:
                 type: integer
+                minimum: 1
+                maximum: 60
               segmentRouting:
                 properties:
                   srgb:
@@ -541,8 +603,12 @@ spec:
                       properties:
                         lowerBound:
                           type: integer
+                          minimum: 16000
+                          maximum: 1048575
                         upperBound:
                           type: integer
+                          minimum: 16000
+                          maximum: 1048575
                       required:
                       - lower-bound
                       - upper-bound
@@ -603,6 +669,8 @@ spec:
                                   type: string
                                 allowAsIn:
                                   type: integer
+                                  minimum: 1
+                                  maximum: 10
                                 allowEbgpVpn:
                                   type: boolean
                                 asOverride:
@@ -618,6 +686,8 @@ spec:
                                   type: object
                                 connectRetryInterval:
                                   type: integer
+                                  minimum: 1
+                                  maximum: 65535
                                 description:
                                   type: string
                                 ebgpMultihop:
@@ -626,11 +696,15 @@ spec:
                                       type: boolean
                                     multihopTtl:
                                       type: integer
+                                      minimum: 1
+                                      maximum: 255
                                   type: object
                                 gracefulRestart:
                                   properties:
                                     restartTime:
                                       type: integer
+                                      minimum: 1
+                                      maximum: 3600
                                   type: object
                                 gracefulRestartHelper:
                                   enum:
@@ -639,14 +713,22 @@ spec:
                                   type: string
                                 holdTime:
                                   type: integer
+                                  minimum: 0
+                                  maximum: 65535
                                 keepaliveInterval:
                                   type: integer
+                                  minimum: 0
+                                  maximum: 65535
                                 localAs:
                                   type: integer
+                                  minimum: 1
+                                  maximum: 4294967295
                                 localAsOptions:
                                   type: integer
                                 minimumAdvertisementInterval:
                                   type: integer
+                                  minimum: 0
+                                  maximum: 65535
                                 orfMode:
                                   enum:
                                   - Both
@@ -676,6 +758,8 @@ spec:
                                   properties:
                                     maximumPrefixes:
                                       type: integer
+                                      minimum: 1
+                                      maximum: 4294967295
                                     warningOnly:
                                       type: boolean
                                   type: object
@@ -693,6 +777,8 @@ spec:
                                   type: array
                                 remoteAs:
                                   type: integer
+                                  minimum: 1
+                                  maximum: 4294967295
                                 removePrivateAs:
                                   type: boolean
                                 routeReflectorClient:
