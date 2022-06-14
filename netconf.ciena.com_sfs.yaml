@@ -55,11 +55,11 @@ spec:
                         type: integer
                     type: object
                   cpuSystemTime:
-                    type: string
+                    type: integer
                   cpuTime:
-                    type: string
+                    type: integer
                   cpuUserTime:
-                    type: string
+                    type: integer
                   cpuUtilization:
                     type: integer
                   interfaces:
@@ -80,42 +80,42 @@ spec:
                         stats:
                           properties:
                             rxBytes:
-                              type: string
+                              type: integer
                             rxDrops:
-                              type: string
+                              type: integer
                             rxErrors:
-                              type: string
+                              type: integer
                             rxPkts:
-                              type: string
+                              type: integer
                             txBytes:
-                              type: string
+                              type: integer
                             txDrops:
-                              type: string
+                              type: integer
                             txErrors:
-                              type: string
+                              type: integer
                             txPkts:
-                              type: string
+                              type: integer
                           type: object
                       required:
                       - name
                       type: object
                     type: array
                   memAllocated:
-                    type: string
+                    type: integer
                   memAvailable:
-                    type: string
+                    type: integer
                   memMajorFault:
-                    type: string
+                    type: integer
                   memMinorFault:
-                    type: string
+                    type: integer
                   memResident:
-                    type: string
+                    type: integer
                   memSwapIn:
-                    type: string
+                    type: integer
                   memSwapOut:
-                    type: string
+                    type: integer
                   memUnused:
-                    type: string
+                    type: integer
                   numCpus:
                     type: integer
                   operState:

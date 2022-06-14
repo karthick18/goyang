@@ -82,7 +82,7 @@ spec:
                     - Maxsizereached
                     type: string
                   downloadedBytes:
-                    type: string
+                    type: integer
                   status:
                     type: string
                   uploadProgress:
@@ -94,7 +94,7 @@ spec:
                     - Uploading
                     type: string
                   uploadedBytes:
-                    type: string
+                    type: integer
                 type: object
             required:
             - file-name

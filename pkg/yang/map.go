@@ -109,7 +109,22 @@ func process(e *Entry, value interface{}, toYang bool) interface{} {
 
 	v, ok := value.(string)
 	if !ok {
-		return value
+		if toYang || e.Type == nil {
+			return value
+		}
+
+		switch t := value.(type) {
+		case float64:
+			switch e.Type.Kind {
+			case Ydecimal64:
+				return t //already right type
+			default:
+				// convert to int64
+				return int64(t)
+			}
+		default:
+			return value
+		}
 	}
 
 	if e.Type == nil {

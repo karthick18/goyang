@@ -32,13 +32,19 @@ var (
 	rootNode     string
 	instanceNode string
 	typeMap      = map[string]string{
-		"uint8":   "integer",
-		"uint16":  "integer",
-		"uint32":  "integer",
-		"bits":    "integer",
-		"string":  "string",
-		"boolean": "boolean",
-		"leafref": "string",
+		"int8":      "integer",
+		"int16":     "integer",
+		"int32":     "integer",
+		"int64":     "integer",
+		"uint8":     "integer",
+		"uint16":    "integer",
+		"uint32":    "integer",
+		"uint64":    "integer",
+		"bits":      "integer",
+		"decimal64": "number",
+		"string":    "string",
+		"boolean":   "boolean",
+		"leafref":   "string",
 	}
 )
 
