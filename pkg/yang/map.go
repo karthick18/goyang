@@ -15,7 +15,26 @@
 package yang
 
 import (
+	"strconv"
 	"strings"
+)
+
+var (
+	TypeMap = map[string]string{
+		"int8":      "integer",
+		"int16":     "integer",
+		"int32":     "integer",
+		"int64":     "integer",
+		"uint8":     "integer",
+		"uint16":    "integer",
+		"uint32":    "integer",
+		"uint64":    "integer",
+		"bits":      "integer",
+		"decimal64": "number",
+		"string":    "string",
+		"boolean":   "boolean",
+		"leafref":   "string",
+	}
 )
 
 func ToYangCompatible(object map[string]interface{}, module string, paths []string,
@@ -157,12 +176,38 @@ func process(e *Entry, value interface{}, toYang bool) interface{} {
 
 		switch t := value.(type) {
 		case float64:
-			switch e.Type.Kind {
-			case Ydecimal64:
+			switch TypeMap[e.Type.Root.Name] {
+			case "number":
 				return t //already right type
-			default:
+			case "integer":
 				// convert to int64
 				return int64(t)
+			case "string":
+				fallthrough
+			default:
+				return strconv.FormatInt(int64(t), 10)
+			}
+		case int64:
+			switch TypeMap[e.Type.Root.Name] {
+			case "integer":
+				return t //already right type
+			case "number":
+				return float64(t)
+			case "string":
+				fallthrough
+			default:
+				return strconv.FormatInt(t, 10)
+			}
+		case int32:
+			switch TypeMap[e.Type.Root.Name] {
+			case "integer":
+				return int64(t)
+			case "number":
+				return float64(t)
+			case "string":
+				fallthrough
+			default:
+				return strconv.FormatInt(int64(t), 10)
 			}
 		default:
 			return value

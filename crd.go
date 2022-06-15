@@ -31,21 +31,6 @@ import (
 var (
 	rootNode     string
 	instanceNode string
-	typeMap      = map[string]string{
-		"int8":      "integer",
-		"int16":     "integer",
-		"int32":     "integer",
-		"int64":     "integer",
-		"uint8":     "integer",
-		"uint16":    "integer",
-		"uint32":    "integer",
-		"uint64":    "integer",
-		"bits":      "integer",
-		"decimal64": "number",
-		"string":    "string",
-		"boolean":   "boolean",
-		"leafref":   "string",
-	}
 )
 
 func init() {
@@ -211,19 +196,31 @@ func WriteCrd(w io.Writer, e *yang.Entry) {
 	}
 
 	if e.IsChoice() {
-		for _, caseEntry := range e.Dir {
-			WriteCrd(w, caseEntry)
-			//for _, ce := range caseEntry.Dir {
-			//				WriteCrd(w, ce)
-			//			}
+		caseNames := make([]string, 0, len(e.Dir))
+
+		for k := range e.Dir {
+			caseNames = append(caseNames, k)
+		}
+
+		sort.Strings(caseNames)
+
+		for _, caseName := range caseNames {
+			WriteCrd(w, e.Dir[caseName])
 		}
 
 		return
 	}
 
 	if e.IsCase() {
-		for _, ce := range e.Dir {
-			WriteCrd(w, ce)
+		cases := make([]string, 0, len(e.Dir))
+		for k := range e.Dir {
+			cases = append(cases, k)
+		}
+
+		sort.Strings(cases)
+
+		for _, name := range cases {
+			WriteCrd(w, e.Dir[name])
 		}
 
 		return
@@ -315,7 +312,7 @@ func emitCrdType(w io.Writer, e *yang.Entry, prefix string) {
 		return
 	}
 
-	crdType, ok := typeMap[e.Type.Root.Name]
+	crdType, ok := yang.TypeMap[e.Type.Root.Name]
 	if !ok {
 		crdType = "string"
 	}

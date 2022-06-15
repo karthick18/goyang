@@ -60,11 +60,12 @@ spec:
                     vlanStack:
                       items:
                         properties:
-                          pushTpid:
+                          popType:
+                            type: string
+                          pushDei:
                             enum:
-                            - Tpid_8100
-                            - Tpid_88A8
-                            - Tpid_9100
+                            - Disabled
+                            - Enabled
                             type: string
                           pushPcp:
                             enum:
@@ -78,21 +79,19 @@ spec:
                             - Pcp_6
                             - Pcp_7
                             type: string
-                          pushDei:
+                          pushTpid:
                             enum:
-                            - Disabled
-                            - Enabled
-                            type: string
-                          pushVid:
-                            type: string
-                          popType:
-                            type: string
-                          stampTpid:
-                            enum:
-                            - NoOp
                             - Tpid_8100
                             - Tpid_88A8
                             - Tpid_9100
+                            type: string
+                          pushVid:
+                            type: string
+                          stampDei:
+                            enum:
+                            - Disabled
+                            - Enabled
+                            - NoOp
                             type: string
                           stampPcp:
                             enum:
@@ -107,15 +106,16 @@ spec:
                             - Pcp_6
                             - Pcp_7
                             type: string
-                          stampDei:
+                          stampTpid:
                             enum:
-                            - Disabled
-                            - Enabled
                             - NoOp
-                            type: string
-                          stampVidValue:
+                            - Tpid_8100
+                            - Tpid_88A8
+                            - Tpid_9100
                             type: string
                           noOp:
+                            type: string
+                          stampVidValue:
                             type: string
                           tag:
                             type: integer
@@ -125,13 +125,10 @@ spec:
                         - tag
                         type: object
                       type: array
-                    untaggedVid:
-                      type: string
-                    untaggedTpid:
+                    untaggedDei:
                       enum:
-                      - Tpid_8100
-                      - Tpid_88A8
-                      - Tpid_9100
+                      - Disabled
+                      - Enabled
                       type: string
                     untaggedPcp:
                       enum:
@@ -145,10 +142,13 @@ spec:
                       - Pcp_6
                       - Pcp_7
                       type: string
-                    untaggedDei:
+                    untaggedTpid:
                       enum:
-                      - Disabled
-                      - Enabled
+                      - Tpid_8100
+                      - Tpid_88A8
+                      - Tpid_9100
+                      type: string
+                    untaggedVid:
                       type: string
                   required:
                   - egressName
@@ -164,16 +164,6 @@ spec:
                 type: string
               floodContainmentProfile:
                 type: string
-              mapPolicy:
-                enum:
-                - Dscp
-                - DscpMplsTc
-                - InnerTag
-                - MplsTc
-                - OuterTag
-                type: string
-              frameToCosMap:
-                type: string
               color:
                 enum:
                 - Green
@@ -184,43 +174,54 @@ spec:
                 type: integer
                 minimum: 0
                 maximum: 63
+              frameToCosMap:
+                type: string
+              mapPolicy:
+                enum:
+                - Dscp
+                - DscpMplsTc
+                - InnerTag
+                - MplsTc
+                - OuterTag
+                type: string
               ingressL2Transform:
                 items:
                   properties:
-                    untaggedVid:
-                      type: string
-                    untaggedTpid:
-                      enum:
-                      - Tpid_8100
-                      - Tpid_88A8
-                      - Tpid_9100
-                      type: string
-                    untaggedPcp:
-                      enum:
-                      - Map
-                      - Pcp_0
-                      - Pcp_1
-                      - Pcp_2
-                      - Pcp_3
-                      - Pcp_4
-                      - Pcp_5
-                      - Pcp_6
-                      - Pcp_7
-                      type: string
-                    untaggedDei:
-                      enum:
-                      - Disabled
-                      - Enabled
-                      type: string
                     vlanStack:
                       items:
                         properties:
-                          stampTpid:
+                          popType:
+                            type: string
+                          pushDei:
                             enum:
-                            - NoOp
+                            - Disabled
+                            - Enabled
+                            type: string
+                          pushPcp:
+                            enum:
+                            - Map
+                            - Pcp_0
+                            - Pcp_1
+                            - Pcp_2
+                            - Pcp_3
+                            - Pcp_4
+                            - Pcp_5
+                            - Pcp_6
+                            - Pcp_7
+                            type: string
+                          pushTpid:
+                            enum:
                             - Tpid_8100
                             - Tpid_88A8
                             - Tpid_9100
+                            type: string
+                          pushVid:
+                            type: string
+                          stampDei:
+                            enum:
+                            - Disabled
+                            - Enabled
+                            - NoOp
                             type: string
                           stampPcp:
                             enum:
@@ -235,42 +236,16 @@ spec:
                             - Pcp_6
                             - Pcp_7
                             type: string
-                          stampDei:
+                          stampTpid:
                             enum:
-                            - Disabled
-                            - Enabled
                             - NoOp
-                            type: string
-                          noOp:
-                            type: string
-                          stampVidValue:
-                            type: string
-                          pushDei:
-                            enum:
-                            - Disabled
-                            - Enabled
-                            type: string
-                          pushVid:
-                            type: string
-                          pushTpid:
-                            enum:
                             - Tpid_8100
                             - Tpid_88A8
                             - Tpid_9100
                             type: string
-                          pushPcp:
-                            enum:
-                            - Map
-                            - Pcp_0
-                            - Pcp_1
-                            - Pcp_2
-                            - Pcp_3
-                            - Pcp_4
-                            - Pcp_5
-                            - Pcp_6
-                            - Pcp_7
+                          noOp:
                             type: string
-                          popType:
+                          stampVidValue:
                             type: string
                           tag:
                             type: integer
@@ -280,6 +255,31 @@ spec:
                         - tag
                         type: object
                       type: array
+                    untaggedDei:
+                      enum:
+                      - Disabled
+                      - Enabled
+                      type: string
+                    untaggedPcp:
+                      enum:
+                      - Map
+                      - Pcp_0
+                      - Pcp_1
+                      - Pcp_2
+                      - Pcp_3
+                      - Pcp_4
+                      - Pcp_5
+                      - Pcp_6
+                      - Pcp_7
+                      type: string
+                    untaggedTpid:
+                      enum:
+                      - Tpid_8100
+                      - Tpid_88A8
+                      - Tpid_9100
+                      type: string
+                    untaggedVid:
+                      type: string
                     ingressName:
                       type: string
                   required:
@@ -341,15 +341,15 @@ spec:
                 - Off
                 - On
                 type: string
+              mplsPw:
+                type: string
+              other:
+                type: string
               svlan:
                 type: integer
                 minimum: 0
                 maximum: 4294967295
-              mplsPw:
-                type: string
               uni:
-                type: string
-              other:
                 type: string
             required:
             - name

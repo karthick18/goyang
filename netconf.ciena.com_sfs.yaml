@@ -198,12 +198,12 @@ spec:
                     properties:
                       isoFile:
                         type: string
+                      sfDeviceLoc:
+                        type: string
                       vdiskDriverType:
                         enum:
                         - Ide
                         - Virtio
-                        type: string
-                      sfDeviceLoc:
                         type: string
                       metaData:
                         type: string
@@ -237,29 +237,29 @@ spec:
                         maximum: 65535
                       libvirtXmlPath:
                         type: string
-                      ftpUsername:
-                        type: string
                       ftpPassword:
                         type: string
-                      sftpUsername:
-                        type: string
-                      sftpPassword:
-                        type: string
-                      scpUsername:
-                        type: string
-                      scpPassword:
-                        type: string
-                      httpUsername:
-                        type: string
-                      httpPassword:
+                      ftpUsername:
                         type: string
                       httpChecksumFilePath:
                         type: string
-                      httpsUsername:
+                      httpPassword:
+                        type: string
+                      httpUsername:
+                        type: string
+                      httpsChecksumFilePath:
                         type: string
                       httpsPassword:
                         type: string
-                      httpsChecksumFilePath:
+                      httpsUsername:
+                        type: string
+                      scpPassword:
+                        type: string
+                      scpUsername:
+                        type: string
+                      sftpPassword:
+                        type: string
+                      sftpUsername:
                         type: string
                       sfDeviceLoc:
                         type: string
