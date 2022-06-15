@@ -196,27 +196,15 @@ spec:
                 properties:
                   cloudInit:
                     properties:
-                      dataSource:
-                        properties:
-                          noCloud:
-                            properties:
-                              source:
-                                properties:
-                                  cdrom:
-                                    properties:
-                                      isoFile:
-                                        type: string
-                                      sfDeviceLoc:
-                                        type: string
-                                      vdiskDriverType:
-                                        enum:
-                                        - Ide
-                                        - Virtio
-                                        type: string
-                                    type: object
-                                type: object
-                            type: object
-                        type: object
+                      isoFile:
+                        type: string
+                      vdiskDriverType:
+                        enum:
+                        - Ide
+                        - Virtio
+                        type: string
+                      sfDeviceLoc:
+                        type: string
                       metaData:
                         type: string
                       userData:
@@ -229,14 +217,8 @@ spec:
                         - Disabled
                         - Enabled
                         type: string
-                      type:
-                        properties:
-                          vnc:
-                            properties:
-                              vncPassword:
-                                type: string
-                            type: object
-                        type: object
+                      vncPassword:
+                        type: string
                     type: object
                   imageMgmt:
                     properties:
@@ -255,48 +237,30 @@ spec:
                         maximum: 65535
                       libvirtXmlPath:
                         type: string
-                      protocol:
-                        properties:
-                          ftp:
-                            properties:
-                              ftpPassword:
-                                type: string
-                              ftpUsername:
-                                type: string
-                            type: object
-                          http:
-                            properties:
-                              httpChecksumFilePath:
-                                type: string
-                              httpPassword:
-                                type: string
-                              httpUsername:
-                                type: string
-                            type: object
-                          https:
-                            properties:
-                              httpsChecksumFilePath:
-                                type: string
-                              httpsPassword:
-                                type: string
-                              httpsUsername:
-                                type: string
-                            type: object
-                          scp:
-                            properties:
-                              scpPassword:
-                                type: string
-                              scpUsername:
-                                type: string
-                            type: object
-                          sftp:
-                            properties:
-                              sftpPassword:
-                                type: string
-                              sftpUsername:
-                                type: string
-                            type: object
-                        type: object
+                      ftpUsername:
+                        type: string
+                      ftpPassword:
+                        type: string
+                      sftpUsername:
+                        type: string
+                      sftpPassword:
+                        type: string
+                      scpUsername:
+                        type: string
+                      scpPassword:
+                        type: string
+                      httpUsername:
+                        type: string
+                      httpPassword:
+                        type: string
+                      httpChecksumFilePath:
+                        type: string
+                      httpsUsername:
+                        type: string
+                      httpsPassword:
+                        type: string
+                      httpsChecksumFilePath:
+                        type: string
                       sfDeviceLoc:
                         type: string
                       vdiskDriverType:
@@ -369,14 +333,8 @@ spec:
                               maximum: 255
                             sfDeviceLoc:
                               type: string
-                            sfVdisk:
-                              properties:
-                                vdisk:
-                                  properties:
-                                    vdiskRef:
-                                      type: string
-                                  type: object
-                              type: object
+                            vdiskRef:
+                              type: string
                             vdiskDriverType:
                               enum:
                               - Ide

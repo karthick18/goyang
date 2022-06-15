@@ -27,7 +27,7 @@ func ToYangCompatible(object map[string]interface{}, module string, paths []stri
 		return nil, err
 	}
 
-	return toMap(object, entry, true)
+	return toMap(object, nil, entry, true)
 }
 
 func FromYangCompatible(object map[string]interface{}, module string, paths []string,
@@ -39,18 +39,29 @@ func FromYangCompatible(object map[string]interface{}, module string, paths []st
 		return nil, err
 	}
 
-	return toMap(object, entry, false)
+	return toMap(object, nil, entry, false)
 }
 
-func toMap(object map[string]interface{}, entry *Entry, toYang bool) (map[string]interface{}, error) {
-	// transform the object by folding names to lower case
-	im := transform(object).(map[string]interface{})
+func toMap(object map[string]interface{}, intermediate map[string]interface{}, entry *Entry, toYang bool) (map[string]interface{}, error) {
+	if intermediate == nil {
+		// transform the object by folding names to lower case
+		intermediate = transform(object).(map[string]interface{})
+	}
 
-	outputMap := make(map[string]interface{}, len(im))
+	outputMap := make(map[string]interface{}, len(intermediate))
 
 	for _, e := range entry.Dir {
+		if e.IsChoice() {
+			for _, caseEntry := range e.Dir {
+				result, _ := toMap(object, intermediate, caseEntry, toYang)
+				for k, v := range result {
+					outputMap[k] = v
+				}
+			}
+			continue
+		}
 		name := casefold(e.Name)
-		value, ok := im[name]
+		value, ok := intermediate[name]
 		if !ok {
 			continue
 		}
@@ -66,7 +77,29 @@ func toMap(object map[string]interface{}, entry *Entry, toYang bool) (map[string
 	return outputMap, nil
 }
 
+func mergeCaseResult(_ *Entry, result interface{}, output map[string]interface{}, _ bool) {
+	m, ok := result.(map[string]interface{})
+	if ok {
+		for k, v := range m {
+			output[k] = v
+		}
+
+		return
+	}
+}
+
 func process(e *Entry, value interface{}, toYang bool) interface{} {
+	if e.IsChoice() {
+		output := make(map[string]interface{}, len(e.Dir))
+
+		for _, caseEntry := range e.Dir {
+			result := process(caseEntry, value, toYang)
+			mergeCaseResult(caseEntry, result, output, toYang)
+		}
+
+		return output
+	}
+
 	m, ok := value.(map[string]interface{})
 	if ok {
 		if e.Dir == nil {
@@ -76,6 +109,15 @@ func process(e *Entry, value interface{}, toYang bool) interface{} {
 		output := make(map[string]interface{}, len(e.Dir))
 
 		for _, entry := range e.Dir {
+			if entry.IsChoice() {
+				for _, caseEntry := range entry.Dir {
+					result := process(caseEntry, value, toYang)
+					mergeCaseResult(caseEntry, result, output, toYang)
+				}
+
+				continue
+			}
+
 			name := casefold(entry.Name)
 			val, ok := m[name]
 			if !ok {

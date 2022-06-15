@@ -43,84 +43,63 @@ spec:
                 type: string
               initiateCosToFrameMap:
                 type: string
-              initiateFrameToCos:
-                properties:
-                  fixed:
-                    properties:
-                      color:
-                        enum:
-                        - Green
-                        - Red
-                        - Yellow
-                        type: string
-                      cos:
-                        type: integer
-                        minimum: 0
-                        maximum: 63
-                    type: object
-                  map:
-                    properties:
-                      initiateFrameToCosMap:
-                        type: string
-                      initiateFrameToCosMapPolicy:
-                        enum:
-                        - Dscp
-                        - InnerTag
-                        - MplsTc
-                        - OuterTag
-                        type: string
-                    type: object
-                type: object
+              initiateFrameToCosMapPolicy:
+                enum:
+                - Dscp
+                - InnerTag
+                - MplsTc
+                - OuterTag
+                type: string
+              initiateFrameToCosMap:
+                type: string
+              cos:
+                type: integer
+                minimum: 0
+                maximum: 63
+              color:
+                enum:
+                - Green
+                - Red
+                - Yellow
+                type: string
               initiateL2Transform:
                 properties:
-                  frameType:
-                    properties:
-                      stack:
-                        properties:
-                          vlanStack:
-                            items:
-                              properties:
-                                action:
-                                  properties:
-                                    push:
-                                      properties:
-                                        pushDei:
-                                          enum:
-                                          - Disabled
-                                          - Enabled
-                                          type: string
-                                        pushPcp:
-                                          enum:
-                                          - Map
-                                          - Pcp_0
-                                          - Pcp_1
-                                          - Pcp_2
-                                          - Pcp_3
-                                          - Pcp_4
-                                          - Pcp_5
-                                          - Pcp_6
-                                          - Pcp_7
-                                          type: string
-                                        pushTpid:
-                                          enum:
-                                          - Tpid_8100
-                                          - Tpid_88A8
-                                          - Tpid_9100
-                                          type: string
-                                        pushVid:
-                                          type: string
-                                      type: object
-                                  type: object
-                                tag:
-                                  type: integer
-                                  minimum: 0
-                                  maximum: 255
-                              required:
-                              - tag
-                              type: object
-                            type: array
-                        type: object
-                    type: object
+                  vlanStack:
+                    items:
+                      properties:
+                        pushTpid:
+                          enum:
+                          - Tpid_8100
+                          - Tpid_88A8
+                          - Tpid_9100
+                          type: string
+                        pushPcp:
+                          enum:
+                          - Map
+                          - Pcp_0
+                          - Pcp_1
+                          - Pcp_2
+                          - Pcp_3
+                          - Pcp_4
+                          - Pcp_5
+                          - Pcp_6
+                          - Pcp_7
+                          type: string
+                        pushDei:
+                          enum:
+                          - Disabled
+                          - Enabled
+                          type: string
+                        pushVid:
+                          type: string
+                        tag:
+                          type: integer
+                          minimum: 0
+                          maximum: 255
+                      required:
+                      - tag
+                      type: object
+                    type: array
                 type: object
               l2CpProfile:
                 type: string

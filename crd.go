@@ -210,6 +210,25 @@ func WriteCrd(w io.Writer, e *yang.Entry) {
 		return
 	}
 
+	if e.IsChoice() {
+		for _, caseEntry := range e.Dir {
+			WriteCrd(w, caseEntry)
+			//for _, ce := range caseEntry.Dir {
+			//				WriteCrd(w, ce)
+			//			}
+		}
+
+		return
+	}
+
+	if e.IsCase() {
+		for _, ce := range e.Dir {
+			WriteCrd(w, ce)
+		}
+
+		return
+	}
+
 	prefixLen := 0
 	name := yang.CamelCase(e.Name, false)
 
