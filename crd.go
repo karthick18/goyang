@@ -71,6 +71,13 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 
 		for name, node := range e.Dir {
 			if name == rootNode && node.Dir != nil {
+				switch node.Node.(type) {
+				case *yang.Container:
+				default:
+					fmt.Fprintf(os.Stderr, "Node %s is not a container node. Skipping...\n", rootNode)
+					continue
+				}
+
 				for listNodeName, listNode := range node.Dir {
 					if listNodeName == instanceNode {
 						processEntry = listNode
@@ -88,7 +95,7 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 			continue
 		}
 
-		if processEntry.Dir != nil && processEntry.ListAttr != nil {
+		if processEntry.Dir != nil && processEntry.IsList() {
 			var b strings.Builder
 			prefixLen := 0
 			fmt.Fprintln(&b, "spec:")
@@ -109,10 +116,9 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 
 			emitCrdRequired(&b, processEntry, indent.GetPrefix(2))
 			fmt.Fprintln(&b, "  type: object")
-			//fmt.Fprintln(w, b.String())
 			executeTemplate(rootNode, instanceNode, b.String())
-
-			//decodeJsonToXml("data.json", "data-xml.json", processEntry, false)
+		} else if processEntry.Dir != nil {
+			fmt.Fprintf(os.Stderr, "Leaf node %s is not a list. Skipping...\n", instanceNode)
 		}
 	}
 }

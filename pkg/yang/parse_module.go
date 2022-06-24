@@ -1,12 +1,17 @@
 package yang
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"sort"
 )
 
-func ModuleToYangEntry(module string, paths []string, containerNode, leafNode string) (*Entry, error) {
+var (
+	ErrInvalidNode = errors.New("invalid node")
+)
+
+func ModuleToYangEntry(module string, paths []string, containerNode, leafNode string) (*Entry, string, error) {
 	ms := NewModules()
 	ms.ParseOptions.IgnoreSubmoduleCircularDependencies = true
 	ms.ParseOptions.IgnoreModuleResolveErrors = true
@@ -20,12 +25,12 @@ func ModuleToYangEntry(module string, paths []string, containerNode, leafNode st
 	}
 
 	if err := ms.Read(module); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	// Process the read files, exiting if any errors were found.
 	if errs := ms.Process(); len(errs) > 0 {
-		return nil, errs[0]
+		return nil, "", errs[0]
 	}
 
 	// Keep track of the top level modules we read in.
@@ -49,7 +54,7 @@ func ModuleToYangEntry(module string, paths []string, containerNode, leafNode st
 	return findEntry(entries, module, containerNode, leafNode)
 }
 
-func findEntry(entries []*Entry, module, containerNode, leafNode string) (*Entry, error) {
+func findEntry(entries []*Entry, module, containerNode, leafNode string) (*Entry, string, error) {
 	base := path.Base(module)
 	moduleBaseName := base[:len(base)-len(path.Ext(base))]
 
@@ -60,9 +65,22 @@ func findEntry(entries []*Entry, module, containerNode, leafNode string) (*Entry
 
 		for name, node := range e.Dir {
 			if name == containerNode && node.Dir != nil {
+
+				switch node.Node.(type) {
+				case *Container:
+				default:
+					return nil, "", fmt.Errorf("%w: node: %s, module %s is not a container node",
+						ErrInvalidNode, containerNode, module)
+				}
+
 				for listNodeName, listNode := range node.Dir {
 					if listNodeName == leafNode {
-						return listNode, nil
+						if listNode.IsList() {
+							return listNode, node.Namespace().NName(), nil
+						}
+
+						return nil, "", fmt.Errorf("%w: leaf %s, module %s is not a list node",
+							ErrInvalidNode, leafNode, module)
 					}
 				}
 			}
@@ -71,6 +89,6 @@ func findEntry(entries []*Entry, module, containerNode, leafNode string) (*Entry
 		break
 	}
 
-	return nil, fmt.Errorf("unable to find module %s with container node %s, leaf node %s",
+	return nil, "", fmt.Errorf("unable to find module %s with container node %s, leaf node %s",
 		module, containerNode, leafNode)
 }

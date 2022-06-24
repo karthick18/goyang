@@ -40,25 +40,35 @@ var (
 func ToYangCompatible(object map[string]interface{}, module string, paths []string,
 	containerNode,
 	leafNode string,
-) (map[string]interface{}, error) {
-	entry, err := ModuleToYangEntry(module, paths, containerNode, leafNode)
+) (map[string]interface{}, string, error) {
+	entry, namespace, err := ModuleToYangEntry(module, paths, containerNode, leafNode)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return toMap(object, nil, entry, true)
+	m, err := toMap(object, nil, entry, true)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return m, namespace, nil
 }
 
 func FromYangCompatible(object map[string]interface{}, module string, paths []string,
 	containerNode,
 	leafNode string,
-) (map[string]interface{}, error) {
-	entry, err := ModuleToYangEntry(module, paths, containerNode, leafNode)
+) (map[string]interface{}, string, error) {
+	entry, namespace, err := ModuleToYangEntry(module, paths, containerNode, leafNode)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return toMap(object, nil, entry, false)
+	m, err := toMap(object, nil, entry, false)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return m, namespace, nil
 }
 
 func toMap(object map[string]interface{}, intermediate map[string]interface{}, entry *Entry, toYang bool) (map[string]interface{}, error) {
