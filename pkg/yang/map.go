@@ -153,7 +153,17 @@ func augmentMap(augmentIndex *trie, key string, value interface{}) interface{} {
 		return val
 	}
 
-	return nsAttrValue + " " + val
+	// embed a #text map
+	textMap := make(map[string]interface{}, 2)
+	nsAttrs := getNamespaceAttribute(nsAttrValue)
+	if len(nsAttrs) != 2 {
+		return val
+	}
+
+	textMap[nsAttrs[0]] = nsAttrs[1]
+	textMap["#text"] = val
+
+	return textMap
 }
 
 func augmentMapWithNamespace(object map[string]interface{}, augmentNamespace map[string]string) map[string]interface{} {
@@ -358,6 +368,18 @@ func process(e *Entry, value interface{}, toYang bool) interface{} {
 				fallthrough
 			default:
 				return strconv.FormatInt(int64(t), 10)
+			}
+		case map[string]interface{}:
+			switch TypeMap[e.Type.Root.Name] {
+			case "string":
+				// check for #text and convert that to string
+				if textValue, ok := t["#text"]; ok {
+					return textValue
+				}
+
+				fallthrough
+			default:
+				return t
 			}
 		default:
 			return value
