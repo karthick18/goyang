@@ -15,6 +15,10 @@
 package yang
 
 import (
+	"errors"
+	"io/fs"
+	"io/ioutil"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -35,6 +39,9 @@ var (
 		"boolean":   "boolean",
 		"leafref":   "string",
 	}
+
+	ErrNoModuleSearchPaths = errors.New("no yang module search paths found")
+	filteredDirs           = []string{".git", "test", "RFC", "DRAFT"}
 )
 
 type trie struct {
@@ -187,10 +194,80 @@ func augmentMapWithNamespace(object map[string]interface{}, augmentNamespace map
 	return object
 }
 
-func ToYangCompatible(object map[string]interface{}, augmentNamespace map[string]string, module string, paths []string,
+func acceptPath(path string) bool {
+	infos, err := ioutil.ReadDir(path)
+	if err != nil {
+		return false
+	}
+
+	// check if there is a yang file present in this directory
+	for _, inf := range infos {
+		if inf.Mode().IsRegular() && filepath.Ext(inf.Name()) == ".yang" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func filteredDirectory(name string) bool {
+	for _, dir := range filteredDirs {
+		if name == dir {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getSearchPaths(searchPath string) ([]string, error) {
+	candidateList := []string{}
+
+	err := filepath.WalkDir(searchPath,
+		func(path string, dirEntry fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if dirEntry.IsDir() {
+				if filteredDirectory(dirEntry.Name()) {
+					return filepath.SkipDir
+				}
+
+				candidateList = append(candidateList, path)
+			}
+
+			return nil
+		})
+
+	if err != nil {
+		return nil, err
+	}
+
+	shortList := make([]string, 0, len(candidateList))
+
+	for _, dir := range candidateList {
+		if acceptPath(dir) {
+			shortList = append(shortList, dir)
+		}
+	}
+
+	if len(shortList) == 0 {
+		return nil, ErrNoModuleSearchPaths
+	}
+
+	return shortList, nil
+}
+
+func ToYangCompatible(object map[string]interface{}, augmentNamespace map[string]string, module string, searchPath string,
 	containerNode,
 	leafNode string,
 ) (map[string]interface{}, string, error) {
+	paths, err := getSearchPaths(searchPath)
+	if err != nil {
+		return nil, "", err
+	}
+
 	entry, namespace, err := ModuleToYangEntry(module, paths, containerNode, leafNode)
 	if err != nil {
 		return nil, "", err
@@ -204,10 +281,15 @@ func ToYangCompatible(object map[string]interface{}, augmentNamespace map[string
 	return augmentMapWithNamespace(m, augmentNamespace), namespace, nil
 }
 
-func FromYangCompatible(object map[string]interface{}, module string, paths []string,
+func FromYangCompatible(object map[string]interface{}, module string, searchPath string,
 	containerNode,
 	leafNode string,
 ) (map[string]interface{}, string, error) {
+	paths, err := getSearchPaths(searchPath)
+	if err != nil {
+		return nil, "", err
+	}
+
 	entry, namespace, err := ModuleToYangEntry(module, paths, containerNode, leafNode)
 	if err != nil {
 		return nil, "", err
