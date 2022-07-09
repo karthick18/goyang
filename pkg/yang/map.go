@@ -282,6 +282,10 @@ func process(e *Entry, value interface{}, toYang bool) interface{} {
 	m, ok := value.(map[string]interface{})
 	if ok {
 		if e.Dir == nil {
+			if textValue, ok := m["#text"]; ok {
+				return textValue
+			}
+
 			return make(map[string]interface{})
 		}
 
@@ -368,18 +372,6 @@ func process(e *Entry, value interface{}, toYang bool) interface{} {
 				fallthrough
 			default:
 				return strconv.FormatInt(int64(t), 10)
-			}
-		case map[string]interface{}:
-			switch TypeMap[e.Type.Root.Name] {
-			case "string":
-				// check for #text and convert that to string
-				if textValue, ok := t["#text"]; ok {
-					return textValue
-				}
-
-				fallthrough
-			default:
-				return t
 			}
 		default:
 			return value
