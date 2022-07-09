@@ -37,7 +37,147 @@ var (
 	}
 )
 
-func ToYangCompatible(object map[string]interface{}, module string, paths []string,
+type trie struct {
+	root *trieNode
+}
+
+type trieNode struct {
+	children map[string]*trieNode
+	leaf     string
+}
+
+func newTrie() *trie {
+	return &trie{root: newTrieNode()}
+}
+
+func newTrieNode() *trieNode {
+	return &trieNode{children: make(map[string]*trieNode)}
+}
+
+func (t *trie) add(key, value string) {
+	root := t.root
+	parts := strings.Split(key, ".")
+
+	for _, part := range parts {
+		p := casefold(part)
+		child := root.children[p]
+		if child == nil {
+			child = newTrieNode()
+			root.children[p] = child
+		}
+
+		root = child
+	}
+
+	root.leaf = value
+}
+
+func (t *trie) present(key string) bool {
+	k := casefold(key)
+	if _, ok := t.root.children[k]; ok {
+		return true
+	}
+
+	return false
+}
+
+func (t *trie) find(key string) string {
+	root := t.root
+	parts := strings.Split(key, ".")
+
+	for _, part := range parts {
+		p := casefold(part)
+
+		root = root.children[p]
+		if root == nil {
+			return ""
+		}
+	}
+
+	return root.leaf
+}
+
+func getNamespaceAttribute(value string) []string {
+	parts := strings.Split(value, "=")
+	if len(parts) != 2 {
+		return nil
+	}
+
+	if !strings.HasPrefix(parts[0], "xmlns") {
+		return nil
+	}
+
+	parts[0] = "-" + parts[0]
+
+	return parts
+}
+
+func augmentMap(augmentIndex *trie, key string, value interface{}) interface{} {
+	m, ok := value.(map[string]interface{})
+	if ok {
+		outputMap := make(map[string]interface{}, len(m))
+
+		nsAttrValue := augmentIndex.find(key)
+		if nsAttrValue != "" {
+			nsAttrs := getNamespaceAttribute(nsAttrValue)
+			if len(nsAttrs) == 2 {
+				outputMap[nsAttrs[0]] = nsAttrs[1]
+			}
+		}
+
+		for k, v := range m {
+			outputMap[k] = augmentMap(augmentIndex, key+"."+k, v)
+		}
+
+		return outputMap
+	}
+
+	items, ok := value.([]interface{})
+	if ok {
+		outputList := make([]interface{}, len(items))
+
+		for i, item := range items {
+			outputList[i] = augmentMap(augmentIndex, key, item)
+		}
+
+		return outputList
+	}
+
+	val, ok := value.(string)
+	if !ok {
+		return value
+	}
+
+	nsAttrValue := augmentIndex.find(key)
+	if nsAttrValue == "" {
+		return val
+	}
+
+	return nsAttrValue + " " + val
+}
+
+func augmentMapWithNamespace(object map[string]interface{}, augmentNamespace map[string]string) map[string]interface{} {
+	if len(augmentNamespace) == 0 {
+		return object
+	}
+
+	augmentIndex := newTrie()
+	for k, v := range augmentNamespace {
+		augmentIndex.add(k, v)
+	}
+
+	for k, v := range object {
+		if !augmentIndex.present(k) {
+			continue
+		}
+
+		object[k] = augmentMap(augmentIndex, k, v)
+	}
+
+	return object
+}
+
+func ToYangCompatible(object map[string]interface{}, augmentNamespace map[string]string, module string, paths []string,
 	containerNode,
 	leafNode string,
 ) (map[string]interface{}, string, error) {
@@ -51,7 +191,7 @@ func ToYangCompatible(object map[string]interface{}, module string, paths []stri
 		return nil, "", err
 	}
 
-	return m, namespace, nil
+	return augmentMapWithNamespace(m, augmentNamespace), namespace, nil
 }
 
 func FromYangCompatible(object map[string]interface{}, module string, paths []string,
