@@ -338,8 +338,8 @@ spec:
                 type: string
               statsCollection:
                 enum:
-                - Off
-                - On
+                - Disable
+                - Enable
                 type: string
               mplsPw:
                 type: string

@@ -40,6 +40,15 @@ var (
 		"leafref":   "string",
 	}
 
+	BooleanToStringMap = map[string]string{
+		"on":    "Enable",
+		"off":   "Disable",
+		"yes":   "Enable",
+		"no":    "Disable",
+		"true":  "Enable",
+		"false": "Disable",
+	}
+
 	ErrNoModuleSearchPaths = errors.New("no yang module search paths found")
 	filteredDirs           = []string{".git", "test", "RFC", "DRAFT"}
 )
@@ -469,9 +478,14 @@ func process(e *Entry, value interface{}, toYang bool) interface{} {
 		names := e.Type.Enum.Names()
 
 		for _, name := range names {
-			if casefold(name) == casefold(v) {
+			cn := casefold(name)
+			cv := casefold(v)
+			if cn == cv || BooleanToStringMap[cn] == v {
 				if !toYang {
-					v = CamelCase(name, true)
+					v = BooleanToStringMap[cv]
+					if v == "" {
+						v = CamelCase(name, true)
+					}
 				} else {
 					v = name
 				}

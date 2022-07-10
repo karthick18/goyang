@@ -310,7 +310,11 @@ func emitCrdType(w io.Writer, e *yang.Entry, prefix string) {
 
 		fmt.Fprintf(w, "%senum:\n", prefix)
 		for _, n := range names {
-			name := yang.CamelCase(n, true)
+			name := yang.BooleanToStringMap[strings.ToLower(n)]
+			if name == "" {
+				name = yang.CamelCase(n, true)
+			}
+
 			fmt.Fprintf(w, "%s- %s\n", prefix, name)
 		}
 
