@@ -17,11 +17,12 @@ EOF
 }
 
 parse_args() {
-    while getopts "h?c:r:p:" arg; do
+    while getopts "h?c:r:p:d:" arg; do
 	case "$arg" in
 	    p) YANG_MODEL_PATH="$OPTARG" ;;
 	    r) ROOT="$OPTARG" ;;
 	    c) CRD="$OPTARG" ;;
+	    d) CRD_NAME="$OPTARG" ;;
 	    h | \?) usage "$0" ;;
 	esac
     done
@@ -78,5 +79,10 @@ for path in $paths; do
 done
 
 yang_paths=$(echo $module_paths | xargs | sed 's/ /,/g')
-echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD"
-./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD $YANG_MODEL
+if [ x"$CRD_NAME" = "x" ]; then
+    echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD"
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD $YANG_MODEL
+else
+    echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD, crd name $CRD_NAME"
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD -d $CRD_NAME $YANG_MODEL 
+fi    

@@ -31,12 +31,14 @@ import (
 var (
 	rootNode     string
 	instanceNode string
+	crdName      string
 )
 
 func init() {
 	opt := getopt.New()
 	opt.StringVarLong(&rootNode, "root-node", 'n', "specify root node for the yang model")
 	opt.StringVarLong(&instanceNode, "crd-node", 'c', "specify crd node for the yang model")
+	opt.StringVarLong(&crdName, "crd-name", 'd', "specify crd name for openapiv3 schema")
 
 	register(&formatter{
 		name:  "crd",
@@ -169,12 +171,23 @@ func executeTemplate(rootNode, crdNode, spec string) {
 		panic(err.Error())
 	}
 
+	if crdName == "" {
+		// try to use the root node if possible
+		if strings.ToLower(crdNode)+"s" == strings.ToLower(rootNode) {
+			crdName = crdNode
+		} else {
+			crdName = rootNode
+		}
+	}
+
+	crdName = yang.CamelCase(crdName, true)
+
 	config := crdConfig{
-		CrdName: crdNode,
+		CrdName: crdName,
 		Group:   "netconf.ciena.com",
 	}
 
-	names := []string{rootNode, crdNode}
+	names := []string{rootNode, crdName}
 	shortNames := make([]string, 0, len(names))
 	seen := make(map[string]struct{}, len(names))
 
@@ -189,7 +202,8 @@ func executeTemplate(rootNode, crdNode, spec string) {
 
 	config.ShortNames = shortNames
 
-	f, err := os.Create(fmt.Sprintf("%s_%s.yaml", config.Group, pluralize(crdNode)))
+	crdFile := fmt.Sprintf("%s_%s.yaml", config.Group, pluralize(crdName))
+	f, err := os.Create(crdFile)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -198,6 +212,8 @@ func executeTemplate(rootNode, crdNode, spec string) {
 	if err != nil {
 		panic("error executing template: " + err.Error())
 	}
+
+	fmt.Println("Generated crd", crdFile)
 }
 
 // Write writes e, formatted, and all of its children, to w.

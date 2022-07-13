@@ -9,8 +9,8 @@ metadata:
 spec:
   group: {{.Group}}
   names:
-    kind: {{ .CrdName | ToLower | Title }}
-    listKind: {{ .CrdName | ToLower | Title }}List
+    kind: {{ .CrdName }}
+    listKind: {{ .CrdName }}List
     plural: {{.CrdName | ToLower | ToPlural }}
     shortNames:
 {{- range $shortName := .ShortNames }}

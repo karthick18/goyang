@@ -9,8 +9,8 @@ metadata:
 spec:
   group: netconf.ciena.com
   names:
-    kind: Licensemanagementconfig
-    listKind: LicensemanagementconfigList
+    kind: LicenseManagementConfig
+    listKind: LicenseManagementConfigList
     plural: licensemanagementconfigs
     shortNames:
     - licensemanagementconfigs
