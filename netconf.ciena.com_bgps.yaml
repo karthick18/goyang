@@ -5,17 +5,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: instances.netconf.ciena.com
+  name: bgps.netconf.ciena.com
 spec:
   group: netconf.ciena.com
   names:
-    kind: Instance
-    listKind: InstanceList
-    plural: instances
+    kind: Bgp
+    listKind: BgpList
+    plural: bgps
     shortNames:
     - bgps
-    - instances
-    singular: instance
+    singular: bgp
   scope: Namespaced
   versions:
   - name: v1alpha1

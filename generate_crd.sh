@@ -84,5 +84,5 @@ if [ x"$CRD_NAME" = "x" ]; then
     ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD $YANG_MODEL
 else
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD, crd name $CRD_NAME"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD -d $CRD_NAME $YANG_MODEL 
-fi    
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD -d $CRD_NAME $YANG_MODEL
+fi
