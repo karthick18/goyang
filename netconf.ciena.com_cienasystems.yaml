@@ -5,16 +5,17 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: systems.netconf.ciena.com
+  name: cienasystems.netconf.ciena.com
 spec:
   group: netconf.ciena.com
   names:
-    kind: System
-    listKind: SystemList
-    plural: systems
+    kind: CienaSystem
+    listKind: CienaSystemList
+    plural: cienasystems
     shortNames:
     - systems
-    singular: system
+    - cienasystems
+    singular: cienasystem
   scope: Namespaced
   versions:
   - name: v1alpha1
