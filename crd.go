@@ -73,16 +73,21 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 
 		for name, node := range e.Dir {
 			if name == rootNode && node.Dir != nil {
-				switch node.Node.(type) {
-				case *yang.Container:
+				switch {
+				case node.IsContainer(), node.IsList():
 				default:
-					fmt.Fprintf(os.Stderr, "Node %s is not a container node. Skipping...\n", rootNode)
+					fmt.Fprintf(os.Stderr, "Node %s is not a container/list node. Skipping...\n", rootNode)
 					continue
 				}
 
 				if rootNode == instanceNode {
 					processEntry = node
 					break
+				}
+
+				if node.IsList() {
+					fmt.Fprintf(os.Stderr, "Root node %s is a list and does not match instance node. Skipping...\n", rootNode)
+					continue
 				}
 
 				for childNodeName, childNode := range node.Dir {

@@ -66,15 +66,20 @@ func findEntry(entries []*Entry, module, containerNode, leafNode string) (*Entry
 		for name, node := range e.Dir {
 			if name == containerNode && node.Dir != nil {
 
-				switch node.Node.(type) {
-				case *Container:
+				switch {
+				case node.IsContainer(), node.IsList():
 				default:
-					return nil, "", fmt.Errorf("%w: node: %s, module %s is not a container node",
+					return nil, "", fmt.Errorf("%w: node: %s, module %s is not a container/list node",
 						ErrInvalidNode, containerNode, module)
 				}
 
 				if containerNode == leafNode {
 					return node, node.Namespace().NName(), nil
+				}
+
+				if node.IsList() {
+					return nil, "", fmt.Errorf("%w: node: %s is a list node and does not match instance node %s",
+						ErrInvalidNode, containerNode, leafNode)
 				}
 
 				for childNodeName, childNode := range node.Dir {
