@@ -98,7 +98,7 @@ func main() {
 	getopt.ListVarLong(&paths, "path", 'p', "comma separated list of directories to add to search path", "DIR[,DIR...]")
 	getopt.StringVarLong(&format, "format", 'f', "format to display: "+strings.Join(formats, ", "), "FORMAT")
 	getopt.StringVarLong(&traceP, "trace", 't', "write trace into to TRACEFILE", "TRACEFILE")
-	getopt.BoolVarLong(&ignoreModuleResolveErrors, "ignore-resolve-errors", 'r', "ignore module resolve errors")
+	getopt.BoolVarLong(&ignoreModuleResolveErrors, "ignore-resolve-errors", 'i', "ignore module resolve errors")
 	getopt.BoolVarLong(&help, "help", 'h', "display help")
 	getopt.BoolVarLong(&ignoreSubmoduleCircularDependencies, "ignore-circdep", 'g', "ignore circular dependencies between submodules")
 	getopt.SetParameters("[FORMAT OPTIONS] [SOURCE] [...]")

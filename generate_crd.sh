@@ -10,19 +10,23 @@ Usage: $this -r root_node -c crd_node yang_model_file
   -p path used while find yang model imports and the model itself
   -r root_node sets the root container node while parsing the yang model
   -c crd_node sets the crd list node used while parsing the yang model
+  -n crd_name is the name of the crd to be generated with openapi v3 k8s schema
+  -d output_directory where crd would be generated
   yang_model_file is the yang model parsed to generate the openapi v3 k8s crd schema
-
 EOF
     exit 2
 }
 
 parse_args() {
-    while getopts "h?c:r:p:d:" arg; do
+    OUTPUT_DIR=$(cd $(dirname "$0"); pwd)
+
+    while getopts "h?c:r:p:d:n:" arg; do
 	case "$arg" in
 	    p) YANG_MODEL_PATH="$OPTARG" ;;
 	    r) ROOT="$OPTARG" ;;
 	    c) CRD="$OPTARG" ;;
-	    d) CRD_NAME="$OPTARG" ;;
+	    n) CRD_NAME="$OPTARG" ;;
+	    d) OUTPUT_DIR="$OPTARG" ;;
 	    h | \?) usage "$0" ;;
 	esac
     done
@@ -80,9 +84,9 @@ done
 
 yang_paths=$(echo $module_paths | xargs | sed 's/ /,/g')
 if [ x"$CRD_NAME" = "x" ]; then
-    echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD $YANG_MODEL
+    echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD, output directory $OUTPUT_DIR"
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -r $ROOT -c $CRD -d $OUTPUT_DIR $YANG_MODEL
 else
-    echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD, crd name $CRD_NAME"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -n $ROOT -c $CRD -d $CRD_NAME $YANG_MODEL
+    echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, root node $ROOT, crd node $CRD, crd name $CRD_NAME, output directory $OUTPUT_DIR"
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --path=$yang_paths -r $ROOT -c $CRD -n $CRD_NAME -d $OUTPUT_DIR $YANG_MODEL
 fi

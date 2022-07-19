@@ -29,16 +29,43 @@ import (
 )
 
 var (
-	rootNode     string
-	instanceNode string
-	crdName      string
+	TypeMap = map[string]string{
+		"int8":      "integer",
+		"int16":     "integer",
+		"int32":     "integer",
+		"int64":     "integer",
+		"uint8":     "integer",
+		"uint16":    "integer",
+		"uint32":    "integer",
+		"uint64":    "integer",
+		"bits":      "integer",
+		"decimal64": "number",
+		"string":    "string",
+		"boolean":   "boolean",
+		"leafref":   "string",
+	}
+
+	BooleanToStringMap = map[string]string{
+		"on":    "Enable",
+		"off":   "Disable",
+		"yes":   "Enable",
+		"no":    "Disable",
+		"true":  "Enable",
+		"false": "Disable",
+	}
+
+	rootNode        string
+	instanceNode    string
+	crdName         string
+	outputDirectory string
 )
 
 func init() {
 	opt := getopt.New()
-	opt.StringVarLong(&rootNode, "root-node", 'n', "specify root node for the yang model")
+	opt.StringVarLong(&rootNode, "root-node", 'r', "specify root node for the yang model")
 	opt.StringVarLong(&instanceNode, "crd-node", 'c', "specify crd node for the yang model")
-	opt.StringVarLong(&crdName, "crd-name", 'd', "specify crd name for openapiv3 schema")
+	opt.StringVarLong(&crdName, "crd-name", 'n', "specify crd name for openapiv3 schema")
+	opt.StringVarLong(&outputDirectory, "output-dir", 'd', "specify output directory name for generating openapiv3 schema. Defaults to current directory.")
 
 	register(&formatter{
 		name:  "crd",
@@ -207,7 +234,21 @@ func executeTemplate(rootNode, crdNode, spec string) {
 
 	config.ShortNames = shortNames
 
-	crdFile := fmt.Sprintf("%s_%s.yaml", config.Group, pluralize(crdName))
+	if outputDirectory == "" {
+		path, err := os.Getwd()
+		if err != nil {
+			panic("error getting current directory:" + err.Error())
+		}
+
+		outputDirectory = path
+	} else {
+		err = os.MkdirAll(outputDirectory, os.ModePerm)
+		if err != nil && !os.IsExist(err) {
+			panic("error mkdirall:" + err.Error())
+		}
+	}
+
+	crdFile := fmt.Sprintf("%s/%s_%s.yaml", outputDirectory, config.Group, pluralize(crdName))
 	f, err := os.Create(crdFile)
 	if err != nil {
 		panic(err.Error())
@@ -336,7 +377,7 @@ func emitCrdType(w io.Writer, e *yang.Entry, prefix string) {
 
 		fmt.Fprintf(w, "%senum:\n", prefix)
 		for _, n := range names {
-			name := yang.BooleanToStringMap[strings.ToLower(n)]
+			name := BooleanToStringMap[strings.ToLower(n)]
 			if name == "" {
 				name = yang.CamelCase(n, true)
 			}
@@ -348,7 +389,7 @@ func emitCrdType(w io.Writer, e *yang.Entry, prefix string) {
 		return
 	}
 
-	crdType, ok := yang.TypeMap[e.Type.Root.Name]
+	crdType, ok := TypeMap[e.Type.Root.Name]
 	if !ok {
 		crdType = "string"
 	}
