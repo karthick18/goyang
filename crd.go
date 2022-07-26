@@ -19,6 +19,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 	"text/template"
@@ -81,6 +82,8 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 		base := path.Base(f)
 		fileBaseNames[i] = base[:len(base)-len(path.Ext(base))]
 	}
+
+	generated := false
 
 	for _, e := range entries {
 		matched := false
@@ -156,9 +159,14 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 			emitCrdRequired(&b, processEntry, indent.GetPrefix(2))
 			fmt.Fprintln(&b, "  type: object")
 			executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String())
-		} else if processEntry.Dir != nil {
-			fmt.Fprintf(os.Stderr, "Leaf node %s is not a list. Skipping...\n", instanceNode)
+
+			generated = true
 		}
+	}
+
+	if !generated {
+		fmt.Fprintf(os.Stderr, "No match found for root %s, crd %s node\n", rootNode, instanceNode)
+		os.Exit(1)
 	}
 }
 
@@ -169,7 +177,8 @@ type crdConfig struct {
 }
 
 func executeTemplate(rootNode, crdNode, spec string) {
-	files := []string{"crd.tmpl"}
+	templateFile := filepath.Dir(os.Args[0]) + "/crd.tmpl"
+	files := []string{templateFile}
 
 	pluralize := func(s string) string {
 		if len(s) == 0 {
