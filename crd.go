@@ -59,6 +59,7 @@ var (
 	instanceNode    string
 	crdName         string
 	outputDirectory string
+	noConfig        bool
 )
 
 func init() {
@@ -67,7 +68,7 @@ func init() {
 	opt.StringVarLong(&instanceNode, "crd-node", 'c', "specify crd node for the yang model")
 	opt.StringVarLong(&crdName, "crd-name", 'n', "specify crd name for openapiv3 schema")
 	opt.StringVarLong(&outputDirectory, "output-dir", 'd', "specify output directory name for generating openapiv3 schema. Defaults to current directory.")
-
+	opt.BoolVarLong(&noConfig, "no-config", 'o', "enable crd generation with config false. An example could be querying operational status.")
 	register(&formatter{
 		name:  "crd",
 		flags: opt,
@@ -138,27 +139,11 @@ func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
 		}
 
 		if processEntry.Dir != nil {
-			var b strings.Builder
-			prefixLen := 0
-			fmt.Fprintln(&b, "spec:")
-			fmt.Fprintln(&b, "  properties:")
-
-			prefixLen = 4
-			var names []string
-
-			for k := range processEntry.Dir {
-				names = append(names, k)
+			if !noConfig {
+				generateSpec(rootNode, instanceNode, processEntry)
+			} else {
+				generateStatus(rootNode, instanceNode, processEntry)
 			}
-
-			sort.Strings(names)
-
-			for _, name := range names {
-				WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
-			}
-
-			emitCrdRequired(&b, processEntry, indent.GetPrefix(2))
-			fmt.Fprintln(&b, "  type: object")
-			executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String())
 
 			generated = true
 		}
@@ -176,8 +161,72 @@ type crdConfig struct {
 	Group      string
 }
 
-func executeTemplate(rootNode, crdNode, spec string) {
-	templateFile := filepath.Dir(os.Args[0]) + "/crd.tmpl"
+func generateSpec(rootNode, instanceNode string, processEntry *yang.Entry) {
+	var b strings.Builder
+	prefixLen := 0
+	fmt.Fprintln(&b, "spec:")
+	fmt.Fprintln(&b, "  properties:")
+
+	prefixLen = 4
+	var names []string
+
+	for k := range processEntry.Dir {
+		names = append(names, k)
+	}
+
+	sort.Strings(names)
+
+	for _, name := range names {
+		WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+	}
+
+	emitCrdRequired(&b, processEntry, indent.GetPrefix(2))
+	fmt.Fprintln(&b, "  type: object")
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), false)
+}
+
+func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
+	var b strings.Builder
+
+	fmt.Fprintln(&b, "status:")
+	fmt.Fprintln(&b, "  properties:")
+	fmt.Fprintln(&b, "    operationalState:")
+	fmt.Fprintln(&b, "      type: array")
+	fmt.Fprintln(&b, "      items:")
+	fmt.Fprintln(&b, "        properties:")
+
+	prefixLen := 10
+
+	var names []string
+
+	for k := range processEntry.Dir {
+		names = append(names, k)
+	}
+
+	sort.Strings(names)
+
+	for _, name := range names {
+		WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+	}
+
+	emitCrdRequired(&b, processEntry, indent.GetPrefix(prefixLen-2))
+	fmt.Fprintf(&b, "%stype: object\n", indent.GetPrefix(prefixLen-2))
+	fmt.Fprintf(&b, "%srequired:\n", indent.GetPrefix(prefixLen-8))
+	fmt.Fprintf(&b, "%s- operationalState\n", indent.GetPrefix(prefixLen-8))
+	fmt.Fprintf(&b, "%stype: object\n", indent.GetPrefix(prefixLen-8))
+
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), true)
+}
+
+func executeTemplate(rootNode, crdNode, content string, noConfig bool) {
+	crdTemplateFile := "crd.tmpl"
+	contentFunction := "GetSpec"
+	if noConfig {
+		contentFunction = "GetStatus"
+		crdTemplateFile = "crd_opstate.tmpl"
+	}
+
+	templateFile := filepath.Dir(os.Args[0]) + "/" + crdTemplateFile
 	files := []string{templateFile}
 
 	pluralize := func(s string) string {
@@ -198,16 +247,16 @@ func executeTemplate(rootNode, crdNode, spec string) {
 		"ToUpper":  strings.ToUpper,
 		"Title":    strings.Title,
 		"ToPlural": pluralize,
-		"GetSpec": func(spaces int) string {
-			if spec[len(spec)-1] == '\n' {
-				spec = spec[:len(spec)-1]
+		contentFunction: func(spaces int) string {
+			if content[len(content)-1] == '\n' {
+				content = content[:len(content)-1]
 			}
 
-			return indent.String(indent.GetPrefix(spaces), spec)
+			return indent.String(indent.GetPrefix(spaces), content)
 		},
 	}
 
-	crdTemplate, err := template.New("crd.tmpl").Funcs(funcMap).ParseFiles(files...)
+	crdTemplate, err := template.New(crdTemplateFile).Funcs(funcMap).ParseFiles(files...)
 	if err != nil {
 		panic(err.Error())
 	}

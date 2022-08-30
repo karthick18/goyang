@@ -1,0 +1,138 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: dhcpserverstates.netconf.ciena.com
+spec:
+  group: netconf.ciena.com
+  names:
+    kind: DhcpServerState
+    listKind: DhcpServerStateList
+    plural: dhcpserverstates
+    shortNames:
+    - dhcpserverstates
+    singular: dhcpserverstate
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              period:
+                type: string
+            required:
+            - period
+            type: object
+          status:
+            properties:
+              operationalState:
+                type: array
+                items:
+                  properties:
+                    gatewayIp:
+                      type: string
+                    gatewayMask:
+                      type: string
+                    hosts:
+                      properties:
+                        host:
+                          items:
+                            properties:
+                              hostHardwareAddress:
+                                type: string
+                              hostIp:
+                                type: string
+                              interface:
+                                type: string
+                              lease:
+                                type: integer
+                                minimum: 0
+                                maximum: 4294967295
+                              type:
+                                enum:
+                                - Automatic
+                                - Dynamic
+                                - Manual
+                                type: string
+                            required:
+                            - interface
+                            type: object
+                          type: array
+                      type: object
+                    ipPoolName:
+                      type: string
+                    packetStatistics:
+                      properties:
+                        receive:
+                          properties:
+                            declinePacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                            discoverPacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                            informPacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                            releasePacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                            requestPacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                          type: object
+                        send:
+                          properties:
+                            ackPacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                            nackPacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                            offerPacket:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                          type: object
+                      type: object
+                  required:
+                  - ipPoolName
+                  type: object
+            required:
+            - operationalState
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
