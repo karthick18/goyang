@@ -118,8 +118,6 @@ spec:
                         type:
                           type: string
                       type: object
-                  required:
-                  - name
                   type: object
             required:
             - operationalState

@@ -216,7 +216,10 @@ func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
 		}
 	}
 
-	emitCrdRequired(&b, processEntry, indent.GetPrefix(prefixLen-2))
+	if readOnlyRootNode {
+		emitCrdRequired(&b, processEntry, indent.GetPrefix(prefixLen-2))
+	}
+
 	fmt.Fprintf(&b, "%stype: object\n", indent.GetPrefix(prefixLen-2))
 	fmt.Fprintf(&b, "%srequired:\n", indent.GetPrefix(prefixLen-8))
 	fmt.Fprintf(&b, "%s- operationalState\n", indent.GetPrefix(prefixLen-8))
