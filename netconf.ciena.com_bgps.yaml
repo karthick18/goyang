@@ -167,6 +167,8 @@ spec:
                 maximum: 4294967295
               clusterId:
                 type: string
+              extendedAsnCap:
+                type: boolean
               fastExternalFailover:
                 type: boolean
               gracefulRestart:
@@ -308,10 +310,18 @@ spec:
                             type: array
                           prefixLimit:
                             properties:
+                              dropExcess:
+                                type: string
+                              idleTimeout:
+                                type: integer
+                                minimum: 0
+                                maximum: 2400
                               maximumPrefixes:
                                 type: integer
                                 minimum: 1
                                 maximum: 4294967295
+                              teardownThreshold:
+                                type: string
                               warningOnly:
                                 type: boolean
                             type: object
@@ -481,10 +491,18 @@ spec:
                             type: array
                           prefixLimit:
                             properties:
+                              dropExcess:
+                                type: string
+                              idleTimeout:
+                                type: integer
+                                minimum: 0
+                                maximum: 2400
                               maximumPrefixes:
                                 type: integer
                                 minimum: 1
                                 maximum: 4294967295
+                              teardownThreshold:
+                                type: string
                               warningOnly:
                                 type: boolean
                             type: object
@@ -636,6 +654,16 @@ spec:
                         - id
                         type: object
                       type: array
+                    segmentRoutingSrv6:
+                      properties:
+                        prefix:
+                          type: string
+                        sidType:
+                          enum:
+                          - ClassicSid
+                          - USid
+                          type: string
+                      type: object
                     vrfAddressFamily:
                       items:
                         properties:
@@ -755,10 +783,18 @@ spec:
                                   type: array
                                 prefixLimit:
                                   properties:
+                                    dropExcess:
+                                      type: string
+                                    idleTimeout:
+                                      type: integer
+                                      minimum: 0
+                                      maximum: 2400
                                     maximumPrefixes:
                                       type: integer
                                       minimum: 1
                                       maximum: 4294967295
+                                    teardownThreshold:
+                                      type: string
                                     warningOnly:
                                       type: boolean
                                   type: object

@@ -205,8 +205,15 @@ func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
 
 	sort.Strings(names)
 
+	readOnlyRootNode := processEntry.ReadOnly()
+
 	for _, name := range names {
-		WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+		if readOnlyRootNode { //all nodes below it are read-only if root node is read-only
+			WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+		} else if processEntry.Dir[name].ReadOnly() {
+			// take only the children of root nodes that are config false
+			WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+		}
 	}
 
 	emitCrdRequired(&b, processEntry, indent.GetPrefix(prefixLen-2))
@@ -277,20 +284,7 @@ func executeTemplate(rootNode, crdNode, content string, noConfig bool) {
 		Group:   "netconf.ciena.com",
 	}
 
-	names := []string{rootNode, crdName}
-	shortNames := make([]string, 0, len(names))
-	seen := make(map[string]struct{}, len(names))
-
-	for _, name := range names {
-		shortName := pluralize(name)
-
-		if _, ok := seen[shortName]; !ok {
-			shortNames = append(shortNames, shortName)
-			seen[shortName] = struct{}{}
-		}
-	}
-
-	config.ShortNames = shortNames
+	config.ShortNames = []string{pluralize(crdName)}
 
 	if outputDirectory == "" {
 		path, err := os.Getwd()

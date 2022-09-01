@@ -46,81 +46,86 @@ spec:
                 type: array
                 items:
                   properties:
-                    gatewayIp:
-                      type: string
-                    gatewayMask:
-                      type: string
-                    hosts:
-                      properties:
-                        host:
-                          items:
+                    dhcpIpPool:
+                      items:
+                        properties:
+                          gatewayIp:
+                            type: string
+                          gatewayMask:
+                            type: string
+                          hosts:
                             properties:
-                              hostHardwareAddress:
-                                type: string
-                              hostIp:
-                                type: string
-                              interface:
-                                type: string
-                              lease:
-                                type: integer
-                                minimum: 0
-                                maximum: 4294967295
-                              type:
-                                enum:
-                                - Automatic
-                                - Dynamic
-                                - Manual
-                                type: string
-                            required:
-                            - interface
+                              host:
+                                items:
+                                  properties:
+                                    hostHardwareAddress:
+                                      type: string
+                                    hostIp:
+                                      type: string
+                                    interface:
+                                      type: string
+                                    lease:
+                                      type: integer
+                                      minimum: 0
+                                      maximum: 4294967295
+                                    type:
+                                      enum:
+                                      - Automatic
+                                      - Dynamic
+                                      - Manual
+                                      type: string
+                                  required:
+                                  - interface
+                                  type: object
+                                type: array
                             type: object
-                          type: array
-                      type: object
-                    ipPoolName:
-                      type: string
-                    packetStatistics:
-                      properties:
-                        receive:
-                          properties:
-                            declinePacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                            discoverPacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                            informPacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                            releasePacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                            requestPacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                          type: object
-                        send:
-                          properties:
-                            ackPacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                            nackPacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                            offerPacket:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                          type: object
-                      type: object
-                  required:
-                  - ipPoolName
+                          ipPoolName:
+                            type: string
+                          packetStatistics:
+                            properties:
+                              receive:
+                                properties:
+                                  declinePacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  discoverPacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  informPacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  releasePacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  requestPacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                type: object
+                              send:
+                                properties:
+                                  ackPacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  nackPacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  offerPacket:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                type: object
+                            type: object
+                        required:
+                        - ipPoolName
+                        type: object
+                      type: array
                   type: object
             required:
             - operationalState

@@ -46,78 +46,84 @@ spec:
                 type: array
                 items:
                   properties:
-                    dhcpServerIdentifier:
-                      type: string
-                    dhcpState:
-                      type: string
-                    leaseTime:
-                      type: integer
-                      minimum: 0
-                      maximum: 4294967295
-                    leaseTimeRemaining:
-                      type: integer
-                      minimum: 0
-                      maximum: 4294967295
-                    operState:
-                      enum:
-                      - Disabled
-                      - Enabled
-                      type: string
-                    optionValue:
-                      properties:
-                        bootfileName:
-                          type: string
-                        bootfileUri:
-                          type: string
-                        domainName:
-                          type: string
-                        domainNameServer:
-                          items:
+                    client:
+                      items:
+                        properties:
+                          dhcpServerIdentifier:
                             type: string
-                          type: array
-                        hostName:
-                          type: string
-                        leaseTime:
-                          type: integer
-                          minimum: 0
-                          maximum: 4294967295
-                        logServer:
-                          items:
+                          dhcpState:
                             type: string
-                          type: array
-                        ntpServers:
-                          items:
+                          interfaceName:
                             type: string
-                          type: array
-                        router:
-                          items:
-                            type: string
-                          type: array
-                        subnetMask:
-                          type: string
-                        tftpServerName:
-                          type: string
-                        timeOffset:
-                          type: integer
-                          minimum: -2147483648
-                          maximum: 2147483647
-                      type: object
-                    rebindingTime:
-                      type: integer
-                      minimum: 0
-                      maximum: 4294967295
-                    rebindingTimeRemaining:
-                      type: integer
-                      minimum: 0
-                      maximum: 4294967295
-                    renewalTime:
-                      type: integer
-                      minimum: 0
-                      maximum: 4294967295
-                    renewalTimeRemaining:
-                      type: integer
-                      minimum: 0
-                      maximum: 4294967295
+                          leaseTime:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                          leaseTimeRemaining:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                          operEnabled:
+                            type: boolean
+                          optionValue:
+                            properties:
+                              bootfileName:
+                                type: string
+                              bootfileUri:
+                                type: string
+                              domainName:
+                                type: string
+                              domainNameServer:
+                                items:
+                                  type: string
+                                type: array
+                              hostName:
+                                type: string
+                              leaseTime:
+                                type: integer
+                                minimum: 0
+                                maximum: 4294967295
+                              logServer:
+                                items:
+                                  type: string
+                                type: array
+                              ntpServers:
+                                items:
+                                  type: string
+                                type: array
+                              router:
+                                items:
+                                  type: string
+                                type: array
+                              subnetMask:
+                                type: string
+                              tftpServerName:
+                                type: string
+                              timeOffset:
+                                type: integer
+                                minimum: -2147483648
+                                maximum: 2147483647
+                            type: object
+                          rebindingTime:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                          rebindingTimeRemaining:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                          renewalTime:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                          renewalTimeRemaining:
+                            type: integer
+                            minimum: 0
+                            maximum: 4294967295
+                        required:
+                        - interfaceName
+                        type: object
+                      type: array
                   type: object
             required:
             - operationalState
