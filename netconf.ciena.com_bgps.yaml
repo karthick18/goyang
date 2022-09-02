@@ -883,13 +883,13 @@ spec:
           status:
             description: observed state of the crd
             properties:
-              state:
+              resourceState:
                 enum:
                 - InSync
                 - Reconciling
                 type: string
             required:
-            - state
+            - resourceState
             type: object
         type: object
     served: true

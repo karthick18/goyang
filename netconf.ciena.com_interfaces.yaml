@@ -37,6 +37,8 @@ spec:
             properties:
               config:
                 properties:
+                  adminStatus:
+                    type: boolean
                   description:
                     type: string
                   enabled:
@@ -47,7 +49,19 @@ spec:
                     maximum: 65535
                   name:
                     type: string
+                  role:
+                    type: string
                   type:
+                    enum:
+                    - Any
+                    - Ettp
+                    - Ip
+                    - IpTunnel
+                    - IpUnnumbered
+                    - Lag
+                    - Loopback
+                    - PointToPoint
+                    - System
                     type: string
                   underlayBinding:
                     properties:
@@ -57,21 +71,12 @@ spec:
                             type: string
                         type: object
                     type: object
+                  vrfName:
+                    type: string
                 type: object
               holdTime:
                 properties:
                   config:
-                    properties:
-                      down:
-                        type: integer
-                        minimum: 0
-                        maximum: 4294967295
-                      up:
-                        type: integer
-                        minimum: 0
-                        maximum: 4294967295
-                    type: object
-                  state:
                     properties:
                       down:
                         type: integer
@@ -101,23 +106,6 @@ spec:
                               type: object
                             ip:
                               type: string
-                            state:
-                              properties:
-                                ip:
-                                  type: string
-                                origin:
-                                  enum:
-                                  - DHCP
-                                  - LINK_LAYER
-                                  - OTHER
-                                  - RANDOM
-                                  - STATIC
-                                  type: string
-                                prefixLength:
-                                  type: integer
-                                  minimum: 0
-                                  maximum: 32
-                              type: object
                           required:
                           - ip
                           type: object
@@ -149,17 +137,6 @@ spec:
                           interfaceRef:
                             type: string
                         type: object
-                      state:
-                        properties:
-                          borrowedIp:
-                            type: string
-                          interfaceRef:
-                            type: string
-                          prefixLength:
-                            type: integer
-                            minimum: 0
-                            maximum: 32
-                        type: object
                     type: object
                 type: object
               ipv6:
@@ -180,23 +157,6 @@ spec:
                               type: object
                             ip:
                               type: string
-                            state:
-                              properties:
-                                ip:
-                                  type: string
-                                origin:
-                                  enum:
-                                  - DHCP
-                                  - LINK_LAYER
-                                  - OTHER
-                                  - RANDOM
-                                  - STATIC
-                                  type: string
-                                prefixLength:
-                                  type: integer
-                                  minimum: 0
-                                  maximum: 128
-                              type: object
                           required:
                           - ip
                           type: object
@@ -224,14 +184,128 @@ spec:
                 type: object
               name:
                 type: string
+              subinterfaces:
+                properties:
+                  subinterface:
+                    items:
+                      properties:
+                        config:
+                          properties:
+                            description:
+                              type: string
+                            enabled:
+                              type: boolean
+                            index:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                          type: object
+                        index:
+                          type: string
+                      required:
+                      - index
+                      type: object
+                    type: array
+                type: object
+            required:
+            - name
+            type: object
+          status:
+            description: observed state of the crd
+            properties:
+              resourceState:
+                enum:
+                - InSync
+                - Reconciling
+                type: string              
+              holdTime:
+                properties:
+                  state:
+                    properties:
+                      down:
+                        type: integer
+                        minimum: 0
+                        maximum: 4294967295
+                      up:
+                        type: integer
+                        minimum: 0
+                        maximum: 4294967295
+                    type: object
+                type: object
+              ipv4:
+                properties:
+                  addresses:
+                    properties:
+                      address:
+                        items:
+                          properties:
+                            state:
+                              properties:
+                                ip:
+                                  type: string
+                                origin:
+                                  enum:
+                                  - DHCP
+                                  - LINK_LAYER
+                                  - OTHER
+                                  - RANDOM
+                                  - STATIC
+                                  type: string
+                                prefixLength:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 32
+                              type: object
+                          type: object
+                        type: array
+                    type: object
+                  unnumbered:
+                    properties:
+                      state:
+                        properties:
+                          borrowedIp:
+                            type: string
+                          interfaceRef:
+                            type: string
+                          prefixLength:
+                            type: integer
+                            minimum: 0
+                            maximum: 32
+                        type: object
+                    type: object
+                type: object
+              ipv6:
+                properties:
+                  addresses:
+                    properties:
+                      address:
+                        items:
+                          properties:
+                            state:
+                              properties:
+                                ip:
+                                  type: string
+                                origin:
+                                  enum:
+                                  - DHCP
+                                  - LINK_LAYER
+                                  - OTHER
+                                  - RANDOM
+                                  - STATIC
+                                  type: string
+                                prefixLength:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 128
+                              type: object
+                          type: object
+                        type: array
+                    type: object
+                type: object
               state:
                 properties:
                   adminStatus:
-                    enum:
-                    - DOWN
-                    - TESTING
-                    - UP
-                    type: string
+                    type: boolean
                   counters:
                     properties:
                       carrierTransitions:
@@ -293,7 +367,21 @@ spec:
                     - UNKNOWN
                     - UP
                     type: string
+                  role:
+                    type: string
                   type:
+                    enum:
+                    - Any
+                    - Ettp
+                    - Ip
+                    - IpTunnel
+                    - IpUnnumbered
+                    - Lag
+                    - Loopback
+                    - PointToPoint
+                    - System
+                    type: string
+                  vrfName:
                     type: string
                 type: object
               subinterfaces:
@@ -301,27 +389,10 @@ spec:
                   subinterface:
                     items:
                       properties:
-                        config:
-                          properties:
-                            description:
-                              type: string
-                            enabled:
-                              type: boolean
-                            index:
-                              type: integer
-                              minimum: 0
-                              maximum: 4294967295
-                          type: object
-                        index:
-                          type: string
                         state:
                           properties:
                             adminStatus:
-                              enum:
-                              - DOWN
-                              - TESTING
-                              - UP
-                              type: string
+                              type: boolean
                             counters:
                               properties:
                                 carrierTransitions:
@@ -384,24 +455,11 @@ spec:
                               - UP
                               type: string
                           type: object
-                      required:
-                      - index
                       type: object
                     type: array
                 type: object
             required:
-            - name
-            type: object
-          status:
-            description: observed state of the crd
-            properties:
-              state:
-                enum:
-                - InSync
-                - Reconciling
-                type: string
-            required:
-            - state
+            - resourceState
             type: object
         type: object
     served: true

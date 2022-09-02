@@ -162,10 +162,10 @@ type crdConfig struct {
 }
 
 func generateSpec(rootNode, instanceNode string, processEntry *yang.Entry) {
-	var b strings.Builder
+	var spec strings.Builder
 	prefixLen := 0
-	fmt.Fprintln(&b, "spec:")
-	fmt.Fprintln(&b, "  properties:")
+	fmt.Fprintln(&spec, "spec:")
+	fmt.Fprintln(&spec, "  properties:")
 
 	prefixLen = 4
 	var names []string
@@ -177,25 +177,31 @@ func generateSpec(rootNode, instanceNode string, processEntry *yang.Entry) {
 	sort.Strings(names)
 
 	for _, name := range names {
-		WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+		WriteCrd(indent.NewWriter(&spec, indent.GetPrefix(prefixLen)), processEntry.Dir[name], true)
 	}
 
-	emitCrdRequired(&b, processEntry, indent.GetPrefix(2))
-	fmt.Fprintln(&b, "  type: object")
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), false)
+	emitCrdRequired(&spec, processEntry, indent.GetPrefix(2))
+	fmt.Fprintln(&spec, "  type: object")
+
+	// now generate the status fields
+	var status strings.Builder
+	generateStatusFields(&status, processEntry, false)
+
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), spec.String(), status.String(), false)
 }
 
 func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
-	var b strings.Builder
+	var status strings.Builder
+	generateStatusFields(&status, processEntry, true)
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), "", status.String(), true)
+}
 
-	fmt.Fprintln(&b, "status:")
-	fmt.Fprintln(&b, "  properties:")
-	fmt.Fprintln(&b, "    operationalState:")
-	fmt.Fprintln(&b, "      type: array")
-	fmt.Fprintln(&b, "      items:")
-	fmt.Fprintln(&b, "        properties:")
-
-	prefixLen := 10
+func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, property bool) {
+	prefixLen := 0
+	if property {
+		fmt.Fprintln(builder, "properties:")
+		prefixLen += 2
+	}
 
 	var names []string
 
@@ -208,31 +214,25 @@ func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
 	readOnlyRootNode := processEntry.ReadOnly()
 
 	for _, name := range names {
-		if readOnlyRootNode { //all nodes below it are read-only if root node is read-only
-			WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
-		} else if processEntry.Dir[name].ReadOnly() {
-			// take only the children of root nodes that are config false
-			WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+		if readOnlyRootNode {
+			WriteCrd(indent.NewWriter(builder, indent.GetPrefix(prefixLen)), processEntry.Dir[name], false)
+		} else {
+			WriteCrdReadOnly(indent.NewWriter(builder, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
 		}
 	}
 
-	if readOnlyRootNode {
-		emitCrdRequired(&b, processEntry, indent.GetPrefix(prefixLen-2))
+	if property {
+		if readOnlyRootNode {
+			emitCrdRequired(builder, processEntry, "")
+		}
+
+		fmt.Fprintln(builder, "type: object")
 	}
-
-	fmt.Fprintf(&b, "%stype: object\n", indent.GetPrefix(prefixLen-2))
-	fmt.Fprintf(&b, "%srequired:\n", indent.GetPrefix(prefixLen-8))
-	fmt.Fprintf(&b, "%s- operationalState\n", indent.GetPrefix(prefixLen-8))
-	fmt.Fprintf(&b, "%stype: object\n", indent.GetPrefix(prefixLen-8))
-
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), true)
 }
 
-func executeTemplate(rootNode, crdNode, content string, noConfig bool) {
+func executeTemplate(rootNode, crdNode, spec, status string, noConfig bool) {
 	crdTemplateFile := "crd.tmpl"
-	contentFunction := "GetSpec"
 	if noConfig {
-		contentFunction = "GetStatus"
 		crdTemplateFile = "crd_opstate.tmpl"
 	}
 
@@ -257,13 +257,32 @@ func executeTemplate(rootNode, crdNode, content string, noConfig bool) {
 		"ToUpper":  strings.ToUpper,
 		"Title":    strings.Title,
 		"ToPlural": pluralize,
-		contentFunction: func(spaces int) string {
-			if content[len(content)-1] == '\n' {
-				content = content[:len(content)-1]
-			}
+	}
 
-			return indent.String(indent.GetPrefix(spaces), content)
-		},
+	indentContent := func(spaces int, content string) string {
+		if content == "" {
+			return ""
+		}
+
+		if content[len(content)-1] == '\n' {
+			content = content[:len(content)-1]
+		}
+
+		return indent.String(indent.GetPrefix(spaces), content)
+	}
+
+	if spec != "" {
+		funcMap["GetSpec"] = func(spaces int) string {
+			return indentContent(spaces, spec)
+		}
+	}
+
+	funcMap["GetStatusFields"] = func(spaces int) string {
+		if status == "" {
+			return ""
+		}
+
+		return indentContent(spaces, "\n"+status)
 	}
 
 	crdTemplate, err := template.New(crdTemplateFile).Funcs(funcMap).ParseFiles(files...)
@@ -318,8 +337,12 @@ func executeTemplate(rootNode, crdNode, content string, noConfig bool) {
 }
 
 // Write writes e, formatted, and all of its children, to w.
-func WriteCrd(w io.Writer, e *yang.Entry) {
+func WriteCrd(w io.Writer, e *yang.Entry, filterReadOnly bool) {
 	if e.RPC != nil {
+		return
+	}
+
+	if filterReadOnly && e.Dir != nil && e.ReadOnly() {
 		return
 	}
 
@@ -333,7 +356,7 @@ func WriteCrd(w io.Writer, e *yang.Entry) {
 		sort.Strings(caseNames)
 
 		for _, caseName := range caseNames {
-			WriteCrd(w, e.Dir[caseName])
+			WriteCrd(w, e.Dir[caseName], filterReadOnly)
 		}
 
 		return
@@ -348,10 +371,27 @@ func WriteCrd(w io.Writer, e *yang.Entry) {
 		sort.Strings(cases)
 
 		for _, name := range cases {
-			WriteCrd(w, e.Dir[name])
+			WriteCrd(w, e.Dir[name], filterReadOnly)
 		}
 
 		return
+	}
+
+	var names []string
+
+	if e.Dir != nil {
+		for k := range e.Dir {
+			if filterReadOnly && e.Dir[k].ReadOnly() {
+				continue
+			}
+			names = append(names, k)
+		}
+
+		if len(names) == 0 {
+			return
+		}
+
+		sort.Strings(names)
 	}
 
 	prefixLen := 0
@@ -379,18 +419,141 @@ func WriteCrd(w io.Writer, e *yang.Entry) {
 		prefixLen += 2
 	}
 
-	var names []string
-	for k := range e.Dir {
-		names = append(names, k)
-	}
-
-	sort.Strings(names)
 	for _, k := range names {
-		WriteCrd(indent.NewWriter(w, indent.GetPrefix(prefixLen)), e.Dir[k])
+		WriteCrd(indent.NewWriter(w, indent.GetPrefix(prefixLen)), e.Dir[k], filterReadOnly)
 	}
 
 	if e.ListAttr != nil {
 		emitCrdRequired(w, e, indent.GetPrefix(prefixLen-2))
+	}
+
+	prefixLen -= 2
+	fmt.Fprintf(w, "%stype: object\n", indent.GetPrefix(prefixLen))
+
+	prefixLen -= 2
+	if e.ListAttr != nil {
+		fmt.Fprintf(w, "%stype: array\n", indent.GetPrefix(prefixLen))
+	}
+}
+
+func hasReadOnly(e *yang.Entry) bool {
+	if e.ReadOnly() {
+		return true
+	}
+
+	if e.Dir == nil {
+		return false
+	}
+
+	if e.IsChoice() {
+		for _, caseEntry := range e.Dir {
+			if hasReadOnly(caseEntry) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	for k := range e.Dir {
+		if hasReadOnly(e.Dir[k]) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func WriteCrdReadOnly(w io.Writer, e *yang.Entry) {
+	if e.RPC != nil {
+		return
+	}
+
+	// write all nodes
+	if e.ReadOnly() {
+		WriteCrd(w, e, false)
+
+		return
+	}
+
+	if e.IsChoice() {
+		caseNames := make([]string, 0, len(e.Dir))
+
+		for k := range e.Dir {
+			caseNames = append(caseNames, k)
+		}
+
+		sort.Strings(caseNames)
+
+		for _, caseName := range caseNames {
+			WriteCrdReadOnly(w, e.Dir[caseName])
+		}
+
+		return
+	}
+
+	if e.IsCase() {
+		cases := make([]string, 0, len(e.Dir))
+		for k := range e.Dir {
+			cases = append(cases, k)
+		}
+
+		sort.Strings(cases)
+
+		for _, name := range cases {
+			WriteCrdReadOnly(w, e.Dir[name])
+		}
+
+		return
+	}
+
+	// if this isn't a read-only node, then nothing to write for scalar entries
+	if e.Dir == nil {
+		return
+	}
+
+	// check if there are any read-only nodes for this node to process
+	var names []string
+
+	for k, node := range e.Dir {
+		if node.ReadOnly() {
+			names = append(names, k)
+		} else if hasReadOnly(node) {
+			names = append(names, k)
+		}
+	}
+
+	// there are no read-only nodes. so skip this config=true node
+	if len(names) == 0 {
+		return
+	}
+
+	// we are here when we have read-only child nodes to process
+	sort.Strings(names)
+
+	prefixLen := 0
+	name := yang.CamelCase(e.Name, false)
+
+	fmt.Fprintf(w, "%s:\n", name)
+	prefixLen += 2
+
+	switch {
+	case e.ListAttr != nil:
+		fmt.Fprintln(w, "  items:")
+		prefixLen += 2
+		fmt.Fprintln(w, "    properties:")
+		prefixLen += 2
+	default:
+		fmt.Fprintln(w, "  properties:")
+		prefixLen += 2
+	}
+
+	for _, k := range names {
+		if !e.Dir[k].ReadOnly() {
+			WriteCrdReadOnly(indent.NewWriter(w, indent.GetPrefix(prefixLen)), e.Dir[k])
+		} else {
+			WriteCrd(indent.NewWriter(w, indent.GetPrefix(prefixLen)), e.Dir[k], false)
+		}
 	}
 
 	prefixLen -= 2

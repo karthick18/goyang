@@ -45,6 +45,10 @@ spec:
                 maximum: 255
               distribute:
                 properties:
+                  bgpLsId:
+                    type: integer
+                    minimum: 0
+                    maximum: 4294967295
                   protocol:
                     enum:
                     - BgpLs
@@ -421,8 +425,8 @@ spec:
                     type: boolean
                   ribUpdateDelay:
                     type: integer
-                    minimum: 0
-                    maximum: 2147483647
+                    minimum: 1
+                    maximum: 60000
                 type: object
               mplsTe:
                 properties:
@@ -668,13 +672,13 @@ spec:
           status:
             description: observed state of the crd
             properties:
-              state:
+              resourceState:
                 enum:
                 - InSync
                 - Reconciling
                 type: string
             required:
-            - state
+            - resourceState
             type: object
         type: object
     served: true

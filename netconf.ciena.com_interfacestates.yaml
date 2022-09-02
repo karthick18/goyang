@@ -44,16 +44,96 @@ spec:
             properties:
               operationalState:
                 type: array
-                items:
+                items:                  
                   properties:
+                    holdTime:
+                      properties:
+                        state:
+                          properties:
+                            down:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                            up:
+                              type: integer
+                              minimum: 0
+                              maximum: 4294967295
+                          type: object
+                      type: object
+                    ipv4:
+                      properties:
+                        addresses:
+                          properties:
+                            address:
+                              items:
+                                properties:
+                                  state:
+                                    properties:
+                                      ip:
+                                        type: string
+                                      origin:
+                                        enum:
+                                        - DHCP
+                                        - LINK_LAYER
+                                        - OTHER
+                                        - RANDOM
+                                        - STATIC
+                                        type: string
+                                      prefixLength:
+                                        type: integer
+                                        minimum: 0
+                                        maximum: 32
+                                    type: object
+                                type: object
+                              type: array
+                          type: object
+                        unnumbered:
+                          properties:
+                            state:
+                              properties:
+                                borrowedIp:
+                                  type: string
+                                interfaceRef:
+                                  type: string
+                                prefixLength:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 32
+                              type: object
+                          type: object
+                      type: object
+                    ipv6:
+                      properties:
+                        addresses:
+                          properties:
+                            address:
+                              items:
+                                properties:
+                                  state:
+                                    properties:
+                                      ip:
+                                        type: string
+                                      origin:
+                                        enum:
+                                        - DHCP
+                                        - LINK_LAYER
+                                        - OTHER
+                                        - RANDOM
+                                        - STATIC
+                                        type: string
+                                      prefixLength:
+                                        type: integer
+                                        minimum: 0
+                                        maximum: 128
+                                    type: object
+                                type: object
+                              type: array
+                          type: object
+                      type: object
                     state:
                       properties:
                         adminStatus:
-                          enum:
-                          - DOWN
-                          - TESTING
-                          - UP
-                          type: string
+                          type: boolean
                         counters:
                           properties:
                             carrierTransitions:
@@ -115,8 +195,96 @@ spec:
                           - UNKNOWN
                           - UP
                           type: string
-                        type:
+                        role:
                           type: string
+                        type:
+                          enum:
+                          - Any
+                          - Ettp
+                          - Ip
+                          - IpTunnel
+                          - IpUnnumbered
+                          - Lag
+                          - Loopback
+                          - PointToPoint
+                          - System
+                          type: string
+                        vrfName:
+                          type: string
+                      type: object
+                    subinterfaces:
+                      properties:
+                        subinterface:
+                          items:
+                            properties:
+                              state:
+                                properties:
+                                  adminStatus:
+                                    type: boolean
+                                  counters:
+                                    properties:
+                                      carrierTransitions:
+                                        type: integer
+                                      inBroadcastPkts:
+                                        type: integer
+                                      inDiscards:
+                                        type: integer
+                                      inErrors:
+                                        type: integer
+                                      inFcsErrors:
+                                        type: integer
+                                      inMulticastPkts:
+                                        type: integer
+                                      inOctets:
+                                        type: integer
+                                      inUnicastPkts:
+                                        type: integer
+                                      inUnknownProtos:
+                                        type: integer
+                                      lastClear:
+                                        type: integer
+                                      outBroadcastPkts:
+                                        type: integer
+                                      outDiscards:
+                                        type: integer
+                                      outErrors:
+                                        type: integer
+                                      outMulticastPkts:
+                                        type: integer
+                                      outOctets:
+                                        type: integer
+                                      outUnicastPkts:
+                                        type: integer
+                                    type: object
+                                  description:
+                                    type: string
+                                  enabled:
+                                    type: boolean
+                                  ifindex:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  index:
+                                    type: integer
+                                    minimum: 0
+                                    maximum: 4294967295
+                                  lastChange:
+                                    type: integer
+                                  name:
+                                    type: string
+                                  operStatus:
+                                    enum:
+                                    - DORMANT
+                                    - DOWN
+                                    - LOWER_LAYER_DOWN
+                                    - NOT_PRESENT
+                                    - TESTING
+                                    - UNKNOWN
+                                    - UP
+                                    type: string
+                                type: object
+                            type: object
+                          type: array
                       type: object
                   type: object
             required:

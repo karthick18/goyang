@@ -63,15 +63,6 @@ spec:
                                     type: string
                                   destinationPort:
                                     type: string
-                                  state:
-                                    properties:
-                                      destinationAddress:
-                                        type: string
-                                      destinationPort:
-                                        type: integer
-                                        minimum: 0
-                                        maximum: 65535
-                                    type: object
                                 required:
                                 - destinationAddress
                                 - destinationPort
@@ -80,11 +71,6 @@ spec:
                           type: object
                         groupId:
                           type: string
-                        state:
-                          properties:
-                            groupId:
-                              type: string
-                          type: object
                       required:
                       - groupId
                       type: object
@@ -116,22 +102,10 @@ spec:
                                     type: object
                                   path:
                                     type: string
-                                  state:
-                                    properties:
-                                      excludeFilter:
-                                        type: string
-                                      path:
-                                        type: string
-                                    type: object
                                 required:
                                 - path
                                 type: object
                               type: array
-                          type: object
-                        state:
-                          properties:
-                            sensorGroupId:
-                              type: string
                           type: object
                       required:
                       - sensorGroupId
@@ -147,6 +121,141 @@ spec:
                       tlsServiceProfile:
                         type: string
                     type: object
+                type: object
+              subscriptions:
+                properties:
+                  persistentSubscriptions:
+                    properties:
+                      persistentSubscription:
+                        items:
+                          properties:
+                            config:
+                              properties:
+                                encoding:
+                                  type: string
+                                localSourceAddress:
+                                  type: string
+                                name:
+                                  type: string
+                                originatedQosMarking:
+                                  type: string
+                                protocol:
+                                  type: string
+                              type: object
+                            destinationGroups:
+                              properties:
+                                destinationGroup:
+                                  items:
+                                    properties:
+                                      config:
+                                        properties:
+                                          groupId:
+                                            type: string
+                                        type: object
+                                      groupId:
+                                        type: string
+                                    required:
+                                    - groupId
+                                    type: object
+                                  type: array
+                              type: object
+                            name:
+                              type: string
+                            sensorProfiles:
+                              properties:
+                                sensorProfile:
+                                  items:
+                                    properties:
+                                      config:
+                                        properties:
+                                          heartbeatInterval:
+                                            type: integer
+                                          sampleInterval:
+                                            type: integer
+                                          sensorGroup:
+                                            type: string
+                                          suppressRedundant:
+                                            type: boolean
+                                        type: object
+                                      sensorGroup:
+                                        type: string
+                                    required:
+                                    - sensorGroup
+                                    type: object
+                                  type: array
+                              type: object
+                          required:
+                          - name
+                          type: object
+                        type: array
+                    type: object
+                type: object
+            type: object
+          status:
+            description: observed state of the crd
+            properties:
+              resourceState:
+                enum:
+                - InSync
+                - Reconciling
+                type: string              
+              destinationGroups:
+                properties:
+                  destinationGroup:
+                    items:
+                      properties:
+                        destinations:
+                          properties:
+                            destination:
+                              items:
+                                properties:
+                                  state:
+                                    properties:
+                                      destinationAddress:
+                                        type: string
+                                      destinationPort:
+                                        type: integer
+                                        minimum: 0
+                                        maximum: 65535
+                                    type: object
+                                type: object
+                              type: array
+                          type: object
+                        state:
+                          properties:
+                            groupId:
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                type: object
+              sensorGroups:
+                properties:
+                  sensorGroup:
+                    items:
+                      properties:
+                        sensorPaths:
+                          properties:
+                            sensorPath:
+                              items:
+                                properties:
+                                  state:
+                                    properties:
+                                      excludeFilter:
+                                        type: string
+                                      path:
+                                        type: string
+                                    type: object
+                                type: object
+                              type: array
+                          type: object
+                        state:
+                          properties:
+                            sensorGroupId:
+                              type: string
+                          type: object
+                      type: object
+                    type: array
                 type: object
               subscriptions:
                 properties:
@@ -209,61 +318,24 @@ spec:
                       persistentSubscription:
                         items:
                           properties:
-                            config:
-                              properties:
-                                encoding:
-                                  type: string
-                                localSourceAddress:
-                                  type: string
-                                name:
-                                  type: string
-                                originatedQosMarking:
-                                  type: string
-                                protocol:
-                                  type: string
-                              type: object
                             destinationGroups:
                               properties:
                                 destinationGroup:
                                   items:
                                     properties:
-                                      config:
-                                        properties:
-                                          groupId:
-                                            type: string
-                                        type: object
-                                      groupId:
-                                        type: string
                                       state:
                                         properties:
                                           groupId:
                                             type: string
                                         type: object
-                                    required:
-                                    - groupId
                                     type: object
                                   type: array
                               type: object
-                            name:
-                              type: string
                             sensorProfiles:
                               properties:
                                 sensorProfile:
                                   items:
                                     properties:
-                                      config:
-                                        properties:
-                                          heartbeatInterval:
-                                            type: integer
-                                          sampleInterval:
-                                            type: integer
-                                          sensorGroup:
-                                            type: string
-                                          suppressRedundant:
-                                            type: boolean
-                                        type: object
-                                      sensorGroup:
-                                        type: string
                                       state:
                                         properties:
                                           heartbeatInterval:
@@ -275,8 +347,6 @@ spec:
                                           suppressRedundant:
                                             type: boolean
                                         type: object
-                                    required:
-                                    - sensorGroup
                                     type: object
                                   type: array
                               type: object
@@ -295,23 +365,12 @@ spec:
                                 protocol:
                                   type: string
                               type: object
-                          required:
-                          - name
                           type: object
                         type: array
                     type: object
                 type: object
-            type: object
-          status:
-            description: observed state of the crd
-            properties:
-              state:
-                enum:
-                - InSync
-                - Reconciling
-                type: string
             required:
-            - state
+            - resourceState
             type: object
         type: object
     served: true

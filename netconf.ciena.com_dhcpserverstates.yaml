@@ -44,7 +44,7 @@ spec:
             properties:
               operationalState:
                 type: array
-                items:
+                items:                  
                   properties:
                     dhcpIpPool:
                       items:

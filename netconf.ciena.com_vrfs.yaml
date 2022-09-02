@@ -5,16 +5,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: licensemanagementconfigs.netconf.ciena.com
+  name: vrfs.netconf.ciena.com
 spec:
   group: netconf.ciena.com
   names:
-    kind: LicenseManagementConfig
-    listKind: LicenseManagementConfigList
-    plural: licensemanagementconfigs
+    kind: Vrf
+    listKind: VrfList
+    plural: vrfs
     shortNames:
-    - licensemanagementconfigs
-    singular: licensemanagementconfig
+    - vrfs
+    singular: vrf
   scope: Namespaced
   versions:
   - name: v1alpha1
@@ -35,42 +35,41 @@ spec:
             type: object
           spec:
             properties:
-              licenseClientConfig:
+              description:
+                type: string
+              isolateMgmt:
+                type: boolean
+              role:
+                enum:
+                - Data
+                - Management
+                type: string
+              segmentRoutingSrv6:
                 properties:
-                  registrationId:
+                  locator:
                     type: string
-                  serverEnable:
+                  sidType:
                     enum:
-                    - Disabled
-                    - Enabled
+                    - ClassicSid
+                    - USid
                     type: string
                 type: object
-              licenseServerConfig:
-                items:
-                  properties:
-                    backup:
-                      type: boolean
-                    hostname:
-                      type: string
-                    primaryServer:
-                      type: string
-                    protocol:
-                      enum:
-                      - Http
-                      - Https
-                      type: string
-                    refreshTime:
-                      type: integer
-                      minimum: 1
-                      maximum: 72
-                    serverPort:
-                      type: integer
-                      minimum: 0
-                      maximum: 65535
-                  required:
-                  - hostname
-                  type: object
-                type: array
+              srPolicy:
+                properties:
+                  color:
+                    type: integer
+                    minimum: 0
+                    maximum: 4294967295
+                  fallback:
+                    enum:
+                    - Disable
+                    - Enable
+                    type: string
+                type: object
+              vrfName:
+                type: string
+            required:
+            - vrfName
             type: object
           status:
             description: observed state of the crd
