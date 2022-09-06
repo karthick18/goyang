@@ -190,13 +190,13 @@ func generateSpec(rootNode, instanceNode string, processEntry *yang.Entry) {
 	var status strings.Builder
 	generateStatusFields(&status, processEntry, false)
 
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), spec.String(), status.String(), false)
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), spec.String(), status.String())
 }
 
 func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
 	var status strings.Builder
 	generateStatusFields(&status, processEntry, true)
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), "", status.String(), true)
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), "", status.String())
 }
 
 func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, property bool) {
@@ -233,7 +233,7 @@ func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, pr
 	}
 }
 
-func executeTemplate(rootNode, crdNode, spec, status string, noConfig bool) {
+func executeTemplate(rootNode, crdNode, spec, status string) {
 	crdTemplateFile := filepath.Base(crdTemplate)
 	templateFile := crdTemplate
 
