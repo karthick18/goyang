@@ -42,7 +42,15 @@ spec:
             required:
             - period
             type: object
-{{ GetStatus 10 }}
+          status:
+            properties:
+              operationalState:
+                type: array
+                items:
+{{ GetStatusFields 18 }}
+            required:
+            - operationalState
+            type: object
         type: object
     served: true
     storage: true

@@ -60,6 +60,7 @@ var (
 	crdName         string
 	outputDirectory string
 	noConfig        bool
+	crdTemplate     string
 )
 
 func init() {
@@ -69,6 +70,8 @@ func init() {
 	opt.StringVarLong(&crdName, "crd-name", 'n', "specify crd name for openapiv3 schema")
 	opt.StringVarLong(&outputDirectory, "output-dir", 'd', "specify output directory name for generating openapiv3 schema. Defaults to current directory.")
 	opt.BoolVarLong(&noConfig, "no-config", 'o', "enable crd generation with config false. An example could be querying operational status.")
+	opt.StringVarLong(&crdTemplate, "crd-template", 'l', "specify template file to generate the crd schema.")
+
 	register(&formatter{
 		name:  "crd",
 		flags: opt,
@@ -182,20 +185,29 @@ func generateSpec(rootNode, instanceNode string, processEntry *yang.Entry) {
 
 	emitCrdRequired(&b, processEntry, indent.GetPrefix(2))
 	fmt.Fprintln(&b, "  type: object")
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), false)
+
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), "")
 }
 
 func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
-	var b strings.Builder
+	var status strings.Builder
+	generateStatusFields(&status, processEntry, true)
 
-	fmt.Fprintln(&b, "status:")
-	fmt.Fprintln(&b, "  properties:")
-	fmt.Fprintln(&b, "    operationalState:")
-	fmt.Fprintln(&b, "      type: array")
-	fmt.Fprintln(&b, "      items:")
-	fmt.Fprintln(&b, "        properties:")
+	statusContent := status.String()
+	if statusContent == "" {
+		fmt.Fprintf(os.Stderr, "no status fields to generate\n")
+		os.Exit(1)
+	}
 
-	prefixLen := 10
+	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), "", statusContent)
+}
+
+func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, property bool) {
+	prefixLen := 0
+	if property {
+		fmt.Fprintln(builder, "properties:")
+		prefixLen += 2
+	}
 
 	var names []string
 
@@ -209,34 +221,36 @@ func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
 
 	for _, name := range names {
 		if readOnlyRootNode { //all nodes below it are read-only if root node is read-only
-			WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+			WriteCrd(indent.NewWriter(builder, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
 		} else if processEntry.Dir[name].ReadOnly() {
 			// take only the children of root nodes that are config false
-			WriteCrd(indent.NewWriter(&b, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
+			WriteCrd(indent.NewWriter(builder, indent.GetPrefix(prefixLen)), processEntry.Dir[name])
 		}
 	}
 
-	if readOnlyRootNode {
-		emitCrdRequired(&b, processEntry, indent.GetPrefix(prefixLen-2))
+	if property {
+		if readOnlyRootNode {
+			emitCrdRequired(builder, processEntry, "")
+		}
+
+		fmt.Fprintln(builder, "type: object")
 	}
-
-	fmt.Fprintf(&b, "%stype: object\n", indent.GetPrefix(prefixLen-2))
-	fmt.Fprintf(&b, "%srequired:\n", indent.GetPrefix(prefixLen-8))
-	fmt.Fprintf(&b, "%s- operationalState\n", indent.GetPrefix(prefixLen-8))
-	fmt.Fprintf(&b, "%stype: object\n", indent.GetPrefix(prefixLen-8))
-
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), true)
 }
 
-func executeTemplate(rootNode, crdNode, content string, noConfig bool) {
-	crdTemplateFile := "crd.tmpl"
-	contentFunction := "GetSpec"
-	if noConfig {
-		contentFunction = "GetStatus"
-		crdTemplateFile = "crd_opstate.tmpl"
+func executeTemplate(rootNode, crdNode, spec, status string) {
+	crdTemplateFile := filepath.Base(crdTemplate)
+	templateFile := crdTemplate
+
+	if _, err := os.Stat(templateFile); err != nil {
+		if os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "template file %s does not exist\n", templateFile)
+		} else {
+			fmt.Fprintf(os.Stderr, "error %v accessing template file %s\n", err, templateFile)
+		}
+
+		os.Exit(1)
 	}
 
-	templateFile := filepath.Dir(os.Args[0]) + "/" + crdTemplateFile
 	files := []string{templateFile}
 
 	pluralize := func(s string) string {
@@ -257,13 +271,30 @@ func executeTemplate(rootNode, crdNode, content string, noConfig bool) {
 		"ToUpper":  strings.ToUpper,
 		"Title":    strings.Title,
 		"ToPlural": pluralize,
-		contentFunction: func(spaces int) string {
-			if content[len(content)-1] == '\n' {
-				content = content[:len(content)-1]
-			}
+	}
 
-			return indent.String(indent.GetPrefix(spaces), content)
-		},
+	indentContent := func(spaces int, content string) string {
+		if content == "" {
+			return ""
+		}
+
+		if content[len(content)-1] == '\n' {
+			content = content[:len(content)-1]
+		}
+
+		return indent.String(indent.GetPrefix(spaces), content)
+	}
+
+	if spec != "" {
+		funcMap["GetSpec"] = func(spaces int) string {
+			return indentContent(spaces, spec)
+		}
+	}
+
+	if status != "" {
+		funcMap["GetStatusFields"] = func(spaces int) string {
+			return indentContent(spaces, status)
+		}
 	}
 
 	crdTemplate, err := template.New(crdTemplateFile).Funcs(funcMap).ParseFiles(files...)
