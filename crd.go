@@ -60,6 +60,7 @@ var (
 	crdName         string
 	outputDirectory string
 	noConfig        bool
+	crdTemplate     string
 )
 
 func init() {
@@ -69,6 +70,8 @@ func init() {
 	opt.StringVarLong(&crdName, "crd-name", 'n', "specify crd name for openapiv3 schema")
 	opt.StringVarLong(&outputDirectory, "output-dir", 'd', "specify output directory name for generating openapiv3 schema. Defaults to current directory.")
 	opt.BoolVarLong(&noConfig, "no-config", 'o', "enable crd generation with config false. An example could be querying operational status.")
+	opt.StringVarLong(&crdTemplate, "crd-template", 'l', "specify template file to generate the crd schema.")
+
 	register(&formatter{
 		name:  "crd",
 		flags: opt,
@@ -231,12 +234,19 @@ func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, pr
 }
 
 func executeTemplate(rootNode, crdNode, spec, status string, noConfig bool) {
-	crdTemplateFile := "crd.tmpl"
-	if noConfig {
-		crdTemplateFile = "crd_opstate.tmpl"
+	crdTemplateFile := filepath.Base(crdTemplate)
+	templateFile := crdTemplate
+
+	if _, err := os.Stat(templateFile); err != nil {
+		if os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "template file %s does not exist\n", templateFile)
+		} else {
+			fmt.Fprintf(os.Stderr, "error %v accessing template file %s\n", err, templateFile)
+		}
+
+		os.Exit(1)
 	}
 
-	templateFile := filepath.Dir(os.Args[0]) + "/" + crdTemplateFile
 	files := []string{templateFile}
 
 	pluralize := func(s string) string {
