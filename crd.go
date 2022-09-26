@@ -269,14 +269,13 @@ func getShortNames(camelCasedName string) []string {
 	}
 
 	if ls == 1 {
+		// take first 3 bytes of crd name in case we have a single byte
+		shortName = strings.ToLower(camelCasedName)[:3]
+
 		return []string{shortName + "s"}
 	}
 
 	if shortName[ls-1] == 's' {
-		if !noConfig {
-			return []string{shortName + "s"}
-		}
-
 		return []string{shortName}
 	}
 
