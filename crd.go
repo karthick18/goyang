@@ -273,6 +273,10 @@ func getShortNames(camelCasedName string) []string {
 	}
 
 	if shortName[ls-1] == 's' {
+		if !noConfig {
+			return []string{shortName + "s"}
+		}
+
 		return []string{shortName}
 	}
 
