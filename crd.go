@@ -237,6 +237,61 @@ func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, pr
 	}
 }
 
+func getShortNames(camelCasedName string) []string {
+	if len(camelCasedName) <= 5 {
+		sn := pluralize(camelCasedName)
+		if noConfig && sn[0] != 'q' {
+			sn = "q" + sn
+		}
+
+		return []string{sn}
+	}
+
+	sn := []byte{}
+	var shortName string
+
+	for _, b := range camelCasedName {
+		if b >= 'A' && b <= 'Z' {
+			sn = append(sn, byte(b))
+		}
+	}
+
+	shortName = strings.ToLower(string(sn))
+	ls := len(shortName)
+
+	if ls == 0 {
+		return []string{string(camelCasedName[0]) + "s"}
+	}
+
+	if noConfig && shortName[0] != 'q' {
+		shortName = "q" + shortName
+		ls += 1
+	}
+
+	if ls == 1 {
+		return []string{shortName + "s"}
+	}
+
+	if shortName[ls-1] == 's' {
+		return []string{shortName}
+	}
+
+	return []string{shortName, shortName + "s"}
+}
+
+func pluralize(s string) string {
+	if len(s) == 0 {
+		return ""
+	}
+
+	p := strings.ToLower(s)
+	if p[len(p)-1] == 's' {
+		return p
+	}
+
+	return p + "s"
+}
+
 func executeTemplate(rootNode, crdNode, spec, status string) {
 	crdTemplateFile := filepath.Base(crdTemplate)
 	templateFile := crdTemplate
@@ -252,19 +307,6 @@ func executeTemplate(rootNode, crdNode, spec, status string) {
 	}
 
 	files := []string{templateFile}
-
-	pluralize := func(s string) string {
-		if len(s) == 0 {
-			return ""
-		}
-
-		p := strings.ToLower(s)
-		if p[len(p)-1] == 's' {
-			return p
-		}
-
-		return p + "s"
-	}
 
 	funcMap := template.FuncMap{
 		"ToLower":  strings.ToLower,
@@ -318,7 +360,7 @@ func executeTemplate(rootNode, crdNode, spec, status string) {
 		Group:   "netconf.ciena.com",
 	}
 
-	config.ShortNames = []string{pluralize(crdName)}
+	config.ShortNames = getShortNames(crdName)
 
 	if outputDirectory == "" {
 		path, err := os.Getwd()

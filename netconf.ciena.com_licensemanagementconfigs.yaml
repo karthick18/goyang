@@ -13,7 +13,8 @@ spec:
     listKind: LicenseManagementConfigList
     plural: licensemanagementconfigs
     shortNames:
-    - licensemanagementconfigs
+    - lmc
+    - lmcs
     singular: licensemanagementconfig
   scope: Namespaced
   versions:
@@ -48,7 +49,11 @@ spec:
               licenseServerConfig:
                 items:
                   properties:
+                    backup:
+                      type: boolean
                     hostname:
+                      type: string
+                    primaryServer:
                       type: string
                     protocol:
                       enum:

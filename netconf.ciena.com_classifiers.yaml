@@ -13,7 +13,7 @@ spec:
     listKind: ClassifierList
     plural: classifiers
     shortNames:
-    - classifiers
+    - cs
     singular: classifier
   scope: Namespaced
   versions:
