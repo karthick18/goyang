@@ -1,0 +1,5 @@
+config.type: "xmlns=http://ciena.com/ns/yang/ciena-openconfig-interfaces"
+config.adminStatus: "xmlns=http://ciena.com/ns/yang/ciena-openconfig-interfaces"
+config.vrfName: "xmlns=http://ciena.com/ns/yang/ciena-openconfig-interfaces"
+config.underlayBinding: "xmlns=http://ciena.com/ns/yang/ciena-underlay-binding"
+ipv4: "xmlns=http://ciena.com/ns/yang/ciena-openconfig-if-ip"

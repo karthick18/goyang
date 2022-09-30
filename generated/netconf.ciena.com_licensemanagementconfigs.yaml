@@ -5,17 +5,17 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: tlsserviceprofiles.netconf.ciena.com
+  name: licensemanagementconfigs.netconf.ciena.com
 spec:
   group: netconf.ciena.com
   names:
-    kind: TlsServiceProfiles
-    listKind: TlsServiceProfilesList
-    plural: tlsserviceprofiles
+    kind: LicenseManagementConfig
+    listKind: LicenseManagementConfigList
+    plural: licensemanagementconfigs
     shortNames:
-    - tsp
-    - tsps
-    singular: tlsserviceprofiles
+    - lmc
+    - lmcs
+    singular: licensemanagementconfig
   scope: Namespaced
   versions:
   - name: v1alpha1
@@ -36,16 +36,42 @@ spec:
             type: object
           spec:
             properties:
-              tlsCertificateName:
-                type: string
-              tlsPeerAuthProfileName:
-                type: string
-              tlsProfileName:
-                type: string
-              tlsServiceProfileName:
-                type: string
-            required:
-            - tlsServiceProfileName
+              licenseClientConfig:
+                properties:
+                  registrationId:
+                    type: string
+                  serverEnable:
+                    enum:
+                    - Disabled
+                    - Enabled
+                    type: string
+                type: object
+              licenseServerConfig:
+                items:
+                  properties:
+                    backup:
+                      type: boolean
+                    hostname:
+                      type: string
+                    primaryServer:
+                      type: string
+                    protocol:
+                      enum:
+                      - Http
+                      - Https
+                      type: string
+                    refreshTime:
+                      type: integer
+                      minimum: 1
+                      maximum: 72
+                    serverPort:
+                      type: integer
+                      minimum: 0
+                      maximum: 65535
+                  required:
+                  - hostname
+                  type: object
+                type: array
             type: object
           status:
             description: observed state of the crd

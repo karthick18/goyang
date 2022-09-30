@@ -56,10 +56,12 @@ import (
 // Each format must register a formatter with register.  The function f will
 // be called once with the set of yang Entry trees generated.
 type formatter struct {
-	name  string
-	f     func(io.Writer, []*yang.Entry, []string)
-	help  string
-	flags *getopt.Set
+	name               string
+	f                  func(io.Writer, []*yang.Entry, string, ...string)
+	validateArgs       func(files []string) error
+	extractFileOptions func(files []string) []FileOption
+	help               string
+	flags              *getopt.Set
 }
 
 var formatters = map[string]*formatter{}
@@ -176,6 +178,16 @@ Formats:
 
 	files := getopt.Args()
 
+	if formatters[format].validateArgs != nil {
+		if err := formatters[format].validateArgs(files); err != nil {
+			fmt.Fprintf(os.Stderr, "%s: validate error %s", format, err)
+
+			stop(1)
+		}
+	}
+
+	var fileOptions []FileOption
+
 	if len(files) == 0 {
 		data, err := ioutil.ReadAll(os.Stdin)
 		if err == nil {
@@ -185,34 +197,52 @@ Formats:
 			fmt.Fprintln(os.Stderr, err)
 			stop(1)
 		}
+	} else {
+		if formatters[format].extractFileOptions != nil {
+			fileOptions = formatters[format].extractFileOptions(files)
+		} else {
+			for _, name := range files {
+				fileOptions = append(fileOptions, &defaultFileOption{name: name})
+			}
+		}
 	}
 
-	for _, name := range files {
+	for _, fopt := range fileOptions {
+		name := fopt.Name()
+		opts := fopt.Options()
+
 		if err := ms.Read(name); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			continue
+			if !strings.Contains(err.Error(), "duplicate") {
+				fmt.Fprintln(os.Stderr, err)
+
+				continue
+			}
+		}
+
+		// Process the read files, exiting if any errors were found.
+		exitIfError(ms.Process())
+
+		// Keep track of the top level modules we read in.
+		// Those are the only modules we want to print below.
+		mods := map[string]*yang.Module{}
+		var names []string
+
+		for _, m := range ms.Modules {
+			if mods[m.Name] == nil {
+				mods[m.Name] = m
+				names = append(names, m.Name)
+			}
+		}
+		sort.Strings(names)
+		entries := make([]*yang.Entry, len(names))
+		for x, n := range names {
+			entries[x] = yang.ToEntry(mods[n])
+		}
+
+		if opts == "" {
+			formatters[format].f(os.Stdout, entries, name)
+		} else {
+			formatters[format].f(os.Stdout, entries, name, opts)
 		}
 	}
-
-	// Process the read files, exiting if any errors were found.
-	exitIfError(ms.Process())
-
-	// Keep track of the top level modules we read in.
-	// Those are the only modules we want to print below.
-	mods := map[string]*yang.Module{}
-	var names []string
-
-	for _, m := range ms.Modules {
-		if mods[m.Name] == nil {
-			mods[m.Name] = m
-			names = append(names, m.Name)
-		}
-	}
-	sort.Strings(names)
-	entries := make([]*yang.Entry, len(names))
-	for x, n := range names {
-		entries[x] = yang.ToEntry(mods[n])
-	}
-
-	formatters[format].f(os.Stdout, entries, files)
 }

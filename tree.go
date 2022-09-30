@@ -31,7 +31,7 @@ func init() {
 	})
 }
 
-func doTree(w io.Writer, entries []*yang.Entry, files []string) {
+func doTree(w io.Writer, entries []*yang.Entry, filename string, opts ...string) {
 	for _, e := range entries {
 		Write(w, e)
 	}

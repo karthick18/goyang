@@ -1,0 +1,18 @@
+---
+apiVersion: netconf.ciena.com/v1alpha1
+kind: YangMetadata
+metadata:
+  name: bgp-meta
+  namespace: default
+spec:
+  reference:
+    apiVersion: netconf.ciena.com/v1alpha1
+    group: netconf.ciena.com
+    kind: Bgp
+  wrapper:
+    config: true
+    keyField: as
+    module: ciena-bgp.yang
+    moduleSearchPath: yang
+    xmlName: instance
+    xmlRequestName: bgp

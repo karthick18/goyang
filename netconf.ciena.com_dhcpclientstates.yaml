@@ -13,7 +13,7 @@ spec:
     listKind: DhcpClientStateList
     plural: dhcpclientstates
     shortNames:
-    - dhcpclientstates
+    - qdcs
     singular: dhcpclientstate
   scope: Namespaced
   versions:

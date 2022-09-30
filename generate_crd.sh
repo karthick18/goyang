@@ -36,7 +36,7 @@ parse_args() {
     done
 
     shift $((OPTIND - 1))
-    YANG_MODEL=$1
+    YANG_MODEL=$@
 }
 
 validate_args() {
@@ -46,8 +46,7 @@ validate_args() {
     fi
     
     if [ x"$CRD" = "x" ]; then
-	echo "crd node needs to be specified"
-	usage "$0"
+	echo "crd node would be derived"
     fi
 
     if [ x"$CRD_TEMPLATE" = "x" ]; then
@@ -56,8 +55,7 @@ validate_args() {
     fi
 
     if [ x"$ROOT" = "x" ]; then
-	echo "root node needs to be specified"
-	usage "$0"
+	echo "root node would be derived"
     fi
 
     if [ x"$YANG_MODEL" = "x" ]; then
@@ -99,8 +97,9 @@ done
 yang_paths=$(echo $module_paths | xargs | sed 's/ /,/g')
 if [ x"$CRD_NAME" = "x" ]; then
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, output directory $OUTPUT_DIR"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -r $ROOT -c $CRD -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL
+    echo "./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL"
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL
 else
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, crd name $CRD_NAME, output directory $OUTPUT_DIR"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -r $ROOT -c $CRD -n $CRD_NAME -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -r "$ROOT" -c "$CRD" -n "$CRD_NAME" -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL
 fi

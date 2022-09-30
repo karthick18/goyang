@@ -13,7 +13,7 @@ spec:
     listKind: TelemetrySystemList
     plural: telemetrysystems
     shortNames:
-    - telemetrysystems
+    - ts
     singular: telemetrysystem
   scope: Namespaced
   versions:

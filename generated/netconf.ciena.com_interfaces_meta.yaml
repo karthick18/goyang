@@ -1,0 +1,24 @@
+---
+apiVersion: netconf.ciena.com/v1alpha1
+kind: YangMetadata
+metadata:
+  name: interface-meta
+  namespace: default
+spec:
+  reference:
+    apiVersion: netconf.ciena.com/v1alpha1
+    group: netconf.ciena.com
+    kind: Interface
+  wrapper:
+    augmentor:
+      config.adminStatus: xmlns=http://ciena.com/ns/yang/ciena-openconfig-interfaces
+      config.type: xmlns=http://ciena.com/ns/yang/ciena-openconfig-interfaces
+      config.underlayBinding: xmlns=http://ciena.com/ns/yang/ciena-underlay-binding
+      config.vrfName: xmlns=http://ciena.com/ns/yang/ciena-openconfig-interfaces
+      ipv4: xmlns=http://ciena.com/ns/yang/ciena-openconfig-if-ip
+    config: true
+    keyField: name
+    module: openconfig-interfaces-ciena.yang
+    moduleSearchPath: yang
+    xmlName: interface
+    xmlRequestName: interfaces

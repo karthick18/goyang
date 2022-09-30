@@ -1,0 +1,21 @@
+---
+apiVersion: netconf.ciena.com/v1alpha1
+kind: YangMetadata
+metadata:
+  name: cienasystem-meta
+  namespace: default
+spec:
+  reference:
+    apiVersion: netconf.ciena.com/v1alpha1
+    group: netconf.ciena.com
+    kind: CienaSystem
+  wrapper:
+    augmentor:
+      ntp: xmlns=http://www.ciena.com/ns/yang/ciena-ntp
+    config: true
+    keyField: internal
+    module: openconfig-system-ciena.yang
+    moduleSearchPath: yang
+    skipReconcile: true
+    xmlName: system
+    xmlRequestName: system

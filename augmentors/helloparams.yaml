@@ -1,0 +1,2 @@
+cipherSuites.cipherSuite: "xmlns:tlscmn=urn:ietf:params:xml:ns:yang:ietf-tls-common"
+ellipticCurves.ellipticCurve: "xmlns:ciena-tls-types=http://www.ciena.com/tls/yang/ciena-tls-types"

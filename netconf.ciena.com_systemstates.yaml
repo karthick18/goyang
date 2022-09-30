@@ -1,0 +1,265 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: systemstates.netconf.ciena.com
+spec:
+  group: netconf.ciena.com
+  names:
+    kind: SystemState
+    listKind: SystemStateList
+    plural: systemstates
+    shortNames:
+    - qss
+    singular: systemstate
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              period:
+                type: string
+            required:
+            - period
+            type: object
+          status:
+            properties:
+              operationalState:
+                type: array
+                items:
+                  properties:
+                    cpuPercent:
+                      properties:
+                        cpuIdle:
+                          type: string
+                        cpuInterrupt:
+                          type: string
+                        cpuMax:
+                          type: string
+                        cpuNice:
+                          type: string
+                        cpuSoftirq:
+                          type: string
+                        cpuSteal:
+                          type: string
+                        cpuSystem:
+                          type: string
+                        cpuTotal:
+                          type: string
+                        cpuUser:
+                          type: string
+                        cpuWait:
+                          type: string
+                        state:
+                          enum:
+                          - Degraded
+                          - Fault
+                          - Normal
+                          - Warning
+                          type: string
+                      type: object
+                    cpuTime:
+                      properties:
+                        cpuIdle:
+                          type: string
+                        cpuInterrupt:
+                          type: string
+                        cpuNice:
+                          type: string
+                        cpuSoftirq:
+                          type: string
+                        cpuSteal:
+                          type: string
+                        cpuSystem:
+                          type: string
+                        cpuUser:
+                          type: string
+                        cpuWait:
+                          type: string
+                      type: object
+                    disk:
+                      properties:
+                        free:
+                          type: integer
+                        max:
+                          type: integer
+                        percentage:
+                          type: string
+                        total:
+                          type: integer
+                        used:
+                          type: integer
+                      type: object
+                    logicalCorePercent:
+                      items:
+                        properties:
+                          cpuId:
+                            type: string
+                          cpuIdle:
+                            type: string
+                          cpuInterrupt:
+                            type: string
+                          cpuNice:
+                            type: string
+                          cpuSoftirq:
+                            type: string
+                          cpuSteal:
+                            type: string
+                          cpuSystem:
+                            type: string
+                          cpuUser:
+                            type: string
+                          cpuWait:
+                            type: string
+                        required:
+                        - cpuId
+                        type: object
+                      type: array
+                    logicalCoreTimes:
+                      items:
+                        properties:
+                          cpuId:
+                            type: string
+                          cpuIdle:
+                            type: string
+                          cpuInterrupt:
+                            type: string
+                          cpuNice:
+                            type: string
+                          cpuSoftirq:
+                            type: string
+                          cpuSteal:
+                            type: string
+                          cpuSystem:
+                            type: string
+                          cpuUser:
+                            type: string
+                          cpuWait:
+                            type: string
+                        required:
+                        - cpuId
+                        type: object
+                      type: array
+                    memory:
+                      properties:
+                        active:
+                          type: integer
+                        available:
+                          type: integer
+                        buffers:
+                          type: integer
+                        cached:
+                          type: integer
+                        free:
+                          type: integer
+                        inactive:
+                          type: integer
+                        max:
+                          type: integer
+                        state:
+                          enum:
+                          - Degraded
+                          - Fault
+                          - Normal
+                          - Warning
+                          type: string
+                        total:
+                          type: integer
+                        used:
+                          type: integer
+                        usedPercent:
+                          type: string
+                      type: object
+                    partition:
+                      items:
+                        properties:
+                          free:
+                            type: integer
+                          max:
+                            type: integer
+                          name:
+                            type: string
+                          percentage:
+                            type: string
+                          state:
+                            enum:
+                            - Degraded
+                            - Fault
+                            - Normal
+                            - Warning
+                            type: string
+                          total:
+                            type: integer
+                          used:
+                            type: integer
+                        required:
+                        - name
+                        type: object
+                      type: array
+                    process:
+                      items:
+                        properties:
+                          cpuPercent:
+                            type: string
+                          cpuTimeSystem:
+                            type: string
+                          cpuTimeUser:
+                            type: string
+                          name:
+                            type: string
+                          pid:
+                            type: string
+                          state:
+                            type: string
+                        required:
+                        - pid
+                        type: object
+                      type: array
+                    sysInfo:
+                      properties:
+                        advertisedCpuSpeed:
+                          type: string
+                        coreTemperature:
+                          type: string
+                        logicalCoreCount:
+                          type: integer
+                          minimum: 0
+                          maximum: 4294967295
+                        physicalCoreCount:
+                          type: integer
+                          minimum: 0
+                          maximum: 4294967295
+                      type: object
+                  type: object
+            required:
+            - operationalState
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

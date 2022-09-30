@@ -1,0 +1,156 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: fds.netconf.ciena.com
+spec:
+  group: netconf.ciena.com
+  names:
+    kind: Fd
+    listKind: FdList
+    plural: fds
+    shortNames:
+    - fds
+    singular: fd
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              cosQueueMap:
+                type: string
+              description:
+                type: string
+              floodContainmentProfile:
+                type: string
+              initiateCosToFrameMap:
+                type: string
+              color:
+                enum:
+                - Green
+                - Red
+                - Yellow
+                type: string
+              cos:
+                type: integer
+                minimum: 0
+                maximum: 63
+              initiateFrameToCosMap:
+                type: string
+              initiateFrameToCosMapPolicy:
+                enum:
+                - Dscp
+                - InnerTag
+                - MplsTc
+                - OuterTag
+                type: string
+              initiateL2Transform:
+                properties:
+                  vlanStack:
+                    items:
+                      properties:
+                        pushDei:
+                          enum:
+                          - Disabled
+                          - Enabled
+                          type: string
+                        pushPcp:
+                          enum:
+                          - Map
+                          - Pcp_0
+                          - Pcp_1
+                          - Pcp_2
+                          - Pcp_3
+                          - Pcp_4
+                          - Pcp_5
+                          - Pcp_6
+                          - Pcp_7
+                          type: string
+                        pushTpid:
+                          enum:
+                          - Tpid_8100
+                          - Tpid_88A8
+                          - Tpid_9100
+                          type: string
+                        pushVid:
+                          type: string
+                        tag:
+                          type: integer
+                          minimum: 0
+                          maximum: 255
+                      required:
+                      - tag
+                      type: object
+                    type: array
+                type: object
+              l2CpProfile:
+                type: string
+              macLearning:
+                enum:
+                - Disabled
+                - Enabled
+                type: string
+              mode:
+                enum:
+                - EvpnVpls
+                - EvpnVpws
+                - Fxc
+                - TdmVpls
+                - TdmVpws
+                - Vlan
+                - Vpls
+                - Vpws
+                type: string
+              name:
+                type: string
+              pfgProfile:
+                type: string
+              queueGroupIndirection:
+                type: string
+              vlanId:
+                type: integer
+                minimum: 1
+                maximum: 4094
+            required:
+            - name
+            type: object
+          status:
+            description: observed state of the crd
+            properties:
+              state:
+                enum:
+                - InSync
+                - Reconciling
+                type: string
+            required:
+            - state
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

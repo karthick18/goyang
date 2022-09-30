@@ -1,0 +1,19 @@
+---
+apiVersion: netconf.ciena.com/v1alpha1
+kind: YangMetadata
+metadata:
+  name: licensemanagementconfig-meta
+  namespace: default
+spec:
+  reference:
+    apiVersion: netconf.ciena.com/v1alpha1
+    group: netconf.ciena.com
+    kind: LicenseManagementConfig
+  wrapper:
+    config: true
+    keyField: internal
+    module: ciena-licensing.yang
+    moduleSearchPath: yang
+    skipReconcile: true
+    xmlName: license-management-config
+    xmlRequestName: license-management-config

@@ -5,17 +5,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: tlsserviceprofiles.netconf.ciena.com
+  name: mpls.netconf.ciena.com
 spec:
   group: netconf.ciena.com
   names:
-    kind: TlsServiceProfiles
-    listKind: TlsServiceProfilesList
-    plural: tlsserviceprofiles
+    kind: Mpls
+    listKind: MplsList
+    plural: mpls
     shortNames:
-    - tsp
-    - tsps
-    singular: tlsserviceprofiles
+    - mpls
+    singular: mpls
   scope: Namespaced
   versions:
   - name: v1alpha1
@@ -36,16 +35,17 @@ spec:
             type: object
           spec:
             properties:
-              tlsCertificateName:
-                type: string
-              tlsPeerAuthProfileName:
-                type: string
-              tlsProfileName:
-                type: string
-              tlsServiceProfileName:
-                type: string
-            required:
-            - tlsServiceProfileName
+              interface:
+                items:
+                  properties:
+                    labelSwitching:
+                      type: boolean
+                    name:
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
             type: object
           status:
             description: observed state of the crd

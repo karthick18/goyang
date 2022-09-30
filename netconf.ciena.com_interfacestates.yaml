@@ -13,7 +13,7 @@ spec:
     listKind: InterfaceStateList
     plural: interfacestates
     shortNames:
-    - interfacestates
+    - qis
     singular: interfacestate
   scope: Namespaced
   versions:

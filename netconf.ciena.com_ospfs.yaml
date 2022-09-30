@@ -113,6 +113,43 @@ spec:
                             - prefix
                             type: object
                           type: array
+                        type:
+                          properties:
+                            nssa:
+                              properties:
+                                defaultInformationOriginate:
+                                  properties:
+                                    metric:
+                                      type: integer
+                                      minimum: 0
+                                      maximum: 16777214
+                                    metricType:
+                                      enum:
+                                      - Type_1
+                                      - Type_2
+                                      type: string
+                                  type: object
+                                noRedistribution:
+                                  type: boolean
+                                noSummary:
+                                  type: boolean
+                                set:
+                                  type: boolean
+                                translatorRole:
+                                  enum:
+                                  - Always
+                                  - Candidate
+                                  - Never
+                                  type: string
+                              type: object
+                            stub:
+                              properties:
+                                noSummary:
+                                  type: boolean
+                                set:
+                                  type: boolean
+                              type: object
+                          type: object
                         virtualLink:
                           items:
                             properties:
@@ -243,7 +280,7 @@ spec:
                     type: boolean
                   ribUpdateDelay:
                     type: integer
-                    minimum: 0
+                    minimum: 1
                     maximum: 2147483647
                 type: object
               redistribute:
@@ -322,6 +359,24 @@ spec:
                 type: integer
                 minimum: 1
                 maximum: 600000
+              summaryAddress:
+                items:
+                  properties:
+                    addressAdvertise:
+                      enum:
+                      - Advertise
+                      - NotAdvertise
+                      type: string
+                    prefix:
+                      type: string
+                    tag:
+                      type: integer
+                      minimum: 0
+                      maximum: 4294967295
+                  required:
+                  - prefix
+                  type: object
+                type: array
               tag:
                 type: integer
                 minimum: 0

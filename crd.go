@@ -55,106 +55,129 @@ var (
 		"false": "Disable",
 	}
 
-	rootNode        string
-	instanceNode    string
-	crdName         string
-	outputDirectory string
-	noConfig        bool
-	crdTemplate     string
+	rootNodeModel     string
+	instanceNodeModel string
+	crdName           string
+	outputDirectory   string
+	noConfig          bool
+	crdTemplate       string
 )
 
 func init() {
 	opt := getopt.New()
-	opt.StringVarLong(&rootNode, "root-node", 'r', "specify root node for the yang model")
-	opt.StringVarLong(&instanceNode, "crd-node", 'c', "specify crd node for the yang model")
+	opt.StringVarLong(&rootNodeModel, "root-node", 'r', "specify root node for the yang model")
+	opt.StringVarLong(&instanceNodeModel, "crd-node", 'c', "specify crd node for the yang model")
 	opt.StringVarLong(&crdName, "crd-name", 'n', "specify crd name for openapiv3 schema")
 	opt.StringVarLong(&outputDirectory, "output-dir", 'd', "specify output directory name for generating openapiv3 schema. Defaults to current directory.")
 	opt.BoolVarLong(&noConfig, "no-config", 'o', "enable crd generation with config false. An example could be querying operational status.")
 	opt.StringVarLong(&crdTemplate, "crd-template", 'l', "specify template file to generate the crd schema.")
 
 	register(&formatter{
-		name:  "crd",
-		flags: opt,
-		f:     doCrd,
-		help:  "display in a crd format",
+		name:               "crd",
+		flags:              opt,
+		f:                  doCrd,
+		validateArgs:       validateArgs,
+		extractFileOptions: extractFileOptions,
+		help:               "display in a crd format",
 	})
 }
 
-func doCrd(w io.Writer, entries []*yang.Entry, files []string) {
-	fileBaseNames := make([]string, len(files))
-	for i, f := range files {
-		base := path.Base(f)
-		fileBaseNames[i] = base[:len(base)-len(path.Ext(base))]
+func doCrd(w io.Writer, entries []*yang.Entry, filename string, opts ...string) {
+	base := path.Base(filename)
+	fileBaseName := base[:len(base)-len(path.Ext(base))]
+	options := ""
+	if len(opts) > 0 {
+		options = opts[0]
 	}
 
-	generated := false
+	crdOptions := parseOptions(options)
+
+	var entry *yang.Entry
 
 	for _, e := range entries {
-		matched := false
+		if e.Name != fileBaseName {
+			continue
+		}
 
-		for _, f := range fileBaseNames {
-			if e.Name == f && e.Dir != nil {
-				matched = true
+		entry = e
+		break
+	}
+
+	if entry == nil || entry.Dir == nil {
+		fmt.Fprintf(os.Stderr, "Unable to find entry %s for module:%s\n", fileBaseName, filename)
+		os.Exit(1)
+	}
+
+	var processEntry *yang.Entry
+	var err error
+
+	rootNode, instanceNode := crdOptions.Root, crdOptions.Instance
+	if rootNode == "" || instanceNode == "" {
+		rootNode, instanceNode, processEntry, err = getRootInstanceEntry(entry)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+
+			os.Exit(1)
+		}
+
+		crdOptions.Root, crdOptions.Instance = rootNode, instanceNode
+	} else {
+		for name, node := range entry.Dir {
+			if name == rootNode {
+				if node.Dir != nil {
+					switch {
+					case node.IsContainer(), node.IsList():
+					default:
+						fmt.Fprintf(os.Stderr, "Node %s is not a container/list node. Skipping...\n", rootNode)
+						continue
+					}
+
+					if rootNode == instanceNode {
+						processEntry = node
+						break
+					}
+
+					if node.IsList() {
+						fmt.Fprintf(os.Stderr, "Root node %s is a list and does not match instance node. Skipping...\n", rootNode)
+						continue
+					}
+
+					for childNodeName, childNode := range node.Dir {
+						if childNodeName == instanceNode {
+							processEntry = childNode
+
+							break
+						}
+					}
+				}
 				break
 			}
 		}
-
-		if !matched {
-			continue
-		}
-
-		var processEntry *yang.Entry
-
-		for name, node := range e.Dir {
-			if name == rootNode && node.Dir != nil {
-				switch {
-				case node.IsContainer(), node.IsList():
-				default:
-					fmt.Fprintf(os.Stderr, "Node %s is not a container/list node. Skipping...\n", rootNode)
-					continue
-				}
-
-				if rootNode == instanceNode {
-					processEntry = node
-					break
-				}
-
-				if node.IsList() {
-					fmt.Fprintf(os.Stderr, "Root node %s is a list and does not match instance node. Skipping...\n", rootNode)
-					continue
-				}
-
-				for childNodeName, childNode := range node.Dir {
-					if childNodeName == instanceNode {
-						processEntry = childNode
-						break
-					}
-				}
-
-				if processEntry != nil {
-					break
-				}
-			}
-		}
-
-		if processEntry == nil {
-			continue
-		}
-
-		if processEntry.Dir != nil {
-			if !noConfig {
-				generateSpec(rootNode, instanceNode, processEntry)
-			} else {
-				generateStatus(rootNode, instanceNode, processEntry)
-			}
-
-			generated = true
-		}
 	}
 
-	if !generated {
-		fmt.Fprintf(os.Stderr, "No match found for root %s, crd %s node\n", rootNode, instanceNode)
+	if processEntry == nil {
+		fmt.Fprintf(os.Stderr, "Unable to find root %s, instance %s for module %s\n", rootNode, instanceNode, filename)
 		os.Exit(1)
+	}
+
+	if crdOptions.Key == "" {
+		key, err := getKeyForEntry(processEntry)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
+
+		crdOptions.Key = key
+	}
+
+	if !noConfig {
+		generateSpec(crdOptions, processEntry)
+	} else {
+		generateStatus(crdOptions, processEntry)
+	}
+
+	if err := generateMetadata(filename, "default", crdOptions); err != nil {
+		panic(err.Error())
 	}
 }
 
@@ -164,7 +187,7 @@ type crdConfig struct {
 	Group      string
 }
 
-func generateSpec(rootNode, instanceNode string, processEntry *yang.Entry) {
+func generateSpec(options *CrdOptions, processEntry *yang.Entry) {
 	var b strings.Builder
 	prefixLen := 0
 	fmt.Fprintln(&b, "spec:")
@@ -186,10 +209,10 @@ func generateSpec(rootNode, instanceNode string, processEntry *yang.Entry) {
 	emitCrdRequired(&b, processEntry, indent.GetPrefix(2))
 	fmt.Fprintln(&b, "  type: object")
 
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), b.String(), "")
+	executeTemplate(options, b.String(), "")
 }
 
-func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
+func generateStatus(options *CrdOptions, processEntry *yang.Entry) {
 	var status strings.Builder
 	generateStatusFields(&status, processEntry, true)
 
@@ -199,7 +222,7 @@ func generateStatus(rootNode, instanceNode string, processEntry *yang.Entry) {
 		os.Exit(1)
 	}
 
-	executeTemplate(yang.CamelCase(rootNode, false), yang.CamelCase(instanceNode, false), "", statusContent)
+	executeTemplate(options, "", statusContent)
 }
 
 func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, property bool) {
@@ -237,65 +260,7 @@ func generateStatusFields(builder *strings.Builder, processEntry *yang.Entry, pr
 	}
 }
 
-func getShortNames(camelCasedName string) []string {
-	if len(camelCasedName) <= 5 {
-		sn := pluralize(camelCasedName)
-		if noConfig && sn[0] != 'q' {
-			sn = "q" + sn
-		}
-
-		return []string{sn}
-	}
-
-	sn := []byte{}
-	var shortName string
-
-	for _, b := range camelCasedName {
-		if b >= 'A' && b <= 'Z' {
-			sn = append(sn, byte(b))
-		}
-	}
-
-	shortName = strings.ToLower(string(sn))
-	ls := len(shortName)
-
-	if ls == 0 {
-		return []string{string(camelCasedName[0]) + "s"}
-	}
-
-	if noConfig && shortName[0] != 'q' {
-		shortName = "q" + shortName
-		ls += 1
-	}
-
-	if ls == 1 {
-		// take first 3 bytes of crd name in case we have a single byte
-		shortName = strings.ToLower(camelCasedName)[:3]
-
-		return []string{shortName}
-	}
-
-	if shortName[ls-1] == 's' {
-		return []string{shortName}
-	}
-
-	return []string{shortName, shortName + "s"}
-}
-
-func pluralize(s string) string {
-	if len(s) == 0 {
-		return ""
-	}
-
-	p := strings.ToLower(s)
-	if p[len(p)-1] == 's' {
-		return p
-	}
-
-	return p + "s"
-}
-
-func executeTemplate(rootNode, crdNode, spec, status string) {
+func executeTemplate(options *CrdOptions, spec, status string) {
 	crdTemplateFile := filepath.Base(crdTemplate)
 	templateFile := crdTemplate
 
@@ -347,6 +312,10 @@ func executeTemplate(rootNode, crdNode, spec, status string) {
 		panic(err.Error())
 	}
 
+	rootNode := yang.CamelCase(options.Root, false)
+	crdNode := yang.CamelCase(options.Instance, false)
+	crdName := options.Name
+
 	if crdName == "" {
 		// try to use the root node if possible
 		if strings.ToLower(crdNode)+"s" == strings.ToLower(rootNode) {
@@ -357,6 +326,7 @@ func executeTemplate(rootNode, crdNode, spec, status string) {
 	}
 
 	crdName = yang.CamelCase(crdName, true)
+	options.Name = crdName
 
 	config := crdConfig{
 		CrdName: crdName,
@@ -365,19 +335,7 @@ func executeTemplate(rootNode, crdNode, spec, status string) {
 
 	config.ShortNames = getShortNames(crdName)
 
-	if outputDirectory == "" {
-		path, err := os.Getwd()
-		if err != nil {
-			panic("error getting current directory:" + err.Error())
-		}
-
-		outputDirectory = path
-	} else {
-		err = os.MkdirAll(outputDirectory, os.ModePerm)
-		if err != nil && !os.IsExist(err) {
-			panic("error mkdirall:" + err.Error())
-		}
-	}
+	outputDirectory = getOutputDirectory()
 
 	crdFile := fmt.Sprintf("%s/%s_%s.yaml", outputDirectory, config.Group, pluralize(crdName))
 	f, err := os.Create(crdFile)

@@ -1,0 +1,904 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: bgps.netconf.ciena.com
+spec:
+  group: netconf.ciena.com
+  names:
+    kind: Bgp
+    listKind: BgpList
+    plural: bgps
+    shortNames:
+    - bgps
+    singular: bgp
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              addressFamily:
+                items:
+                  properties:
+                    additionalPaths:
+                      properties:
+                        bestCount:
+                          type: integer
+                          minimum: 2
+                          maximum: 3
+                        install:
+                          type: boolean
+                        selectAll:
+                          type: boolean
+                        type:
+                          type: integer
+                      type: object
+                    afi:
+                      enum:
+                      - All
+                      - Ipv4
+                      - Ipv6
+                      - L2Vpn
+                      - LinkState
+                      - Rtfilter
+                      - Vpnv4
+                      - Vpnv6
+                      type: string
+                    aggregateAddress:
+                      items:
+                        properties:
+                          address:
+                            type: string
+                          asSet:
+                            type: boolean
+                          summaryOnly:
+                            type: boolean
+                        required:
+                        - address
+                        type: object
+                      type: array
+                    allocateLabel:
+                      properties:
+                        all:
+                          type: boolean
+                        policy:
+                          type: string
+                      type: object
+                    autoSummary:
+                      type: boolean
+                    network:
+                      items:
+                        properties:
+                          address:
+                            type: string
+                          policy:
+                            type: string
+                        required:
+                        - address
+                        type: object
+                      type: array
+                    networkSynchronization:
+                      type: boolean
+                    pic:
+                      type: boolean
+                    redistribute:
+                      items:
+                        properties:
+                          instance:
+                            items:
+                              properties:
+                                policy:
+                                  type: string
+                                tag:
+                                  type: string
+                              required:
+                              - tag
+                              type: object
+                            type: array
+                          policy:
+                            type: string
+                          protocol:
+                            enum:
+                            - Connected
+                            - Isis
+                            - Kernel
+                            - Ospf
+                            - Rip
+                            - Static
+                            type: string
+                        required:
+                        - protocol
+                        type: object
+                      type: array
+                    routeReflector:
+                      type: boolean
+                    safi:
+                      enum:
+                      - All
+                      - Evpn
+                      - L2VpnVpls
+                      - LabeledUnicast
+                      - LinkState
+                      - Multicast
+                      - RtfilterUnicast
+                      - Unicast
+                      - VpnUnicast
+                      type: string
+                    segmentRouting:
+                      enum:
+                      - Disable
+                      - Enable
+                      type: string
+                    synchronization:
+                      type: boolean
+                    tableMap:
+                      properties:
+                        filter:
+                          type: boolean
+                        policy:
+                          type: string
+                      type: object
+                  required:
+                  - afi
+                  - safi
+                  type: object
+                type: array
+              as:
+                type: integer
+                minimum: 1
+                maximum: 4294967295
+              clusterId:
+                type: string
+              extendedAsnCap:
+                type: boolean
+              fastExternalFailover:
+                type: boolean
+              gracefulRestart:
+                properties:
+                  restartTime:
+                    type: integer
+                    minimum: 1
+                    maximum: 3600
+                  stalepathTime:
+                    type: integer
+                    minimum: 1
+                    maximum: 3600
+                type: object
+              holdTime:
+                type: integer
+                minimum: 0
+                maximum: 65535
+              inboundRouteFilter:
+                type: boolean
+              keepaliveInterval:
+                type: integer
+                minimum: 0
+                maximum: 65535
+              l2VpnVpls:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    routeDistinguisher:
+                      type: string
+                    routeTarget:
+                      items:
+                        properties:
+                          direction:
+                            enum:
+                            - Both
+                            - Export
+                            - Import
+                            type: string
+                          id:
+                            type: string
+                        required:
+                        - id
+                        type: object
+                      type: array
+                    vplsId:
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+              localPreference:
+                type: integer
+                minimum: 0
+                maximum: 4294967295
+              logPeerChanges:
+                type: boolean
+              mplsResolution:
+                type: boolean
+              nextHopTracking:
+                properties:
+                  delay:
+                    type: integer
+                    minimum: 1
+                    maximum: 100
+                  enable:
+                    type: boolean
+                type: object
+              peer:
+                items:
+                  properties:
+                    address:
+                      type: string
+                    addressFamily:
+                      items:
+                        properties:
+                          activate:
+                            type: boolean
+                          additionalPaths:
+                            properties:
+                              bestCount:
+                                type: integer
+                                minimum: 2
+                                maximum: 3
+                              selectAll:
+                                type: boolean
+                              type:
+                                enum:
+                                - Disable
+                                - Receive
+                                - Send
+                                - SendReceive
+                                type: string
+                            type: object
+                          afi:
+                            type: string
+                          allowAsIn:
+                            type: integer
+                            minimum: 1
+                            maximum: 10
+                          allowEbgpSr:
+                            enum:
+                            - Disable
+                            - Enable
+                            type: string
+                          allowEbgpVpn:
+                            type: boolean
+                          attributeUnchanged:
+                            type: integer
+                          defaultOriginate:
+                            type: boolean
+                          gracefulRestartHelper:
+                            enum:
+                            - Disable
+                            - Enable
+                            type: string
+                          nextHopSelf:
+                            type: boolean
+                          orfMode:
+                            enum:
+                            - Both
+                            - Receive
+                            - Send
+                            type: string
+                          policy:
+                            items:
+                              properties:
+                                direction:
+                                  enum:
+                                  - In
+                                  - Out
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - name
+                              - direction
+                              type: object
+                            type: array
+                          prefixLimit:
+                            properties:
+                              dropExcess:
+                                type: string
+                              idleTimeout:
+                                type: integer
+                                minimum: 0
+                                maximum: 2400
+                              maximumPrefixes:
+                                type: integer
+                                minimum: 1
+                                maximum: 4294967295
+                              teardownThreshold:
+                                type: string
+                              warningOnly:
+                                type: boolean
+                            type: object
+                          prefixList:
+                            items:
+                              properties:
+                                direction:
+                                  type: integer
+                                name:
+                                  type: string
+                              required:
+                              - name
+                              - direction
+                              type: object
+                            type: array
+                          removePrivateAs:
+                            type: boolean
+                          routeReflectorClient:
+                            type: boolean
+                          safi:
+                            type: string
+                          softReconfigurationInbound:
+                            type: boolean
+                          unsuppress:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
+                        required:
+                        - afi
+                        - safi
+                        type: object
+                      type: array
+                    bfd:
+                      properties:
+                        enable:
+                          type: boolean
+                        multihop:
+                          type: boolean
+                      type: object
+                    connectRetryInterval:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                    description:
+                      type: string
+                    ebgpMultihop:
+                      properties:
+                        enabled:
+                          type: boolean
+                        multihopttl:
+                          type: integer
+                          minimum: 1
+                          maximum: 255
+                      type: object
+                    gracefulRestart:
+                      properties:
+                        restartTime:
+                          type: integer
+                          minimum: 1
+                          maximum: 3600
+                      type: object
+                    holdTime:
+                      type: integer
+                      minimum: 0
+                      maximum: 65535
+                    keepaliveInterval:
+                      type: integer
+                      minimum: 0
+                      maximum: 65535
+                    localAs:
+                      type: integer
+                      minimum: 1
+                      maximum: 4294967295
+                    localAsOptions:
+                      type: integer
+                    minimumAdvertisementInterval:
+                      type: integer
+                      minimum: 0
+                      maximum: 65535
+                    passive:
+                      type: boolean
+                    password:
+                      type: string
+                    peerGroup:
+                      type: string
+                    remoteAs:
+                      type: integer
+                      minimum: 1
+                      maximum: 4294967295
+                    shutdown:
+                      type: boolean
+                    updateSourceInterface:
+                      type: string
+                  required:
+                  - address
+                  type: object
+                type: array
+              peerGroup:
+                items:
+                  properties:
+                    addressFamily:
+                      items:
+                        properties:
+                          activate:
+                            type: boolean
+                          additionalPaths:
+                            properties:
+                              bestCount:
+                                type: integer
+                                minimum: 2
+                                maximum: 3
+                              selectAll:
+                                type: boolean
+                              type:
+                                enum:
+                                - Disable
+                                - Receive
+                                - Send
+                                - SendReceive
+                                type: string
+                            type: object
+                          afi:
+                            type: string
+                          allowAsIn:
+                            type: integer
+                            minimum: 1
+                            maximum: 10
+                          allowEbgpSr:
+                            enum:
+                            - Disable
+                            - Enable
+                            type: string
+                          allowEbgpVpn:
+                            type: boolean
+                          attributeUnchanged:
+                            type: integer
+                          defaultOriginate:
+                            type: boolean
+                          gracefulRestartHelper:
+                            enum:
+                            - Disable
+                            - Enable
+                            type: string
+                          nextHopSelf:
+                            type: boolean
+                          orfMode:
+                            enum:
+                            - Both
+                            - Receive
+                            - Send
+                            type: string
+                          policy:
+                            items:
+                              properties:
+                                direction:
+                                  enum:
+                                  - In
+                                  - Out
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                              - name
+                              - direction
+                              type: object
+                            type: array
+                          prefixLimit:
+                            properties:
+                              dropExcess:
+                                type: string
+                              idleTimeout:
+                                type: integer
+                                minimum: 0
+                                maximum: 2400
+                              maximumPrefixes:
+                                type: integer
+                                minimum: 1
+                                maximum: 4294967295
+                              teardownThreshold:
+                                type: string
+                              warningOnly:
+                                type: boolean
+                            type: object
+                          prefixList:
+                            items:
+                              properties:
+                                direction:
+                                  type: integer
+                                name:
+                                  type: string
+                              required:
+                              - name
+                              - direction
+                              type: object
+                            type: array
+                          removePrivateAs:
+                            type: boolean
+                          routeReflectorClient:
+                            type: boolean
+                          safi:
+                            type: string
+                          softReconfigurationInbound:
+                            type: boolean
+                          unsuppress:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
+                        required:
+                        - afi
+                        - safi
+                        type: object
+                      type: array
+                    connectRetryInterval:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                    description:
+                      type: string
+                    ebgpMultihop:
+                      properties:
+                        enabled:
+                          type: boolean
+                        multihopttl:
+                          type: integer
+                          minimum: 1
+                          maximum: 255
+                      type: object
+                    gracefulRestart:
+                      properties:
+                        restartTime:
+                          type: integer
+                          minimum: 1
+                          maximum: 3600
+                      type: object
+                    holdTime:
+                      type: integer
+                      minimum: 0
+                      maximum: 65535
+                    keepaliveInterval:
+                      type: integer
+                      minimum: 0
+                      maximum: 65535
+                    localAs:
+                      type: integer
+                      minimum: 1
+                      maximum: 4294967295
+                    localAsOptions:
+                      type: integer
+                    minimumAdvertisementInterval:
+                      type: integer
+                      minimum: 0
+                      maximum: 65535
+                    name:
+                      type: string
+                    passive:
+                      type: boolean
+                    password:
+                      type: string
+                    remoteAs:
+                      type: integer
+                      minimum: 1
+                      maximum: 4294967295
+                    shutdown:
+                      type: boolean
+                    updateSourceInterface:
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+              routeSelectionOptions:
+                properties:
+                  alwaysCompareMed:
+                    type: boolean
+                  deterministicMed:
+                    type: boolean
+                  externalCompareRouterId:
+                    type: boolean
+                  ignoreAsPathLength:
+                    type: boolean
+                  tieBreakOnAge:
+                    type: boolean
+                type: object
+              routerId:
+                type: string
+              scanTime:
+                type: integer
+                minimum: 1
+                maximum: 60
+              segmentRouting:
+                properties:
+                  srgb:
+                    items:
+                      properties:
+                        lowerBound:
+                          type: integer
+                          minimum: 16000
+                          maximum: 1048575
+                        upperBound:
+                          type: integer
+                          minimum: 16000
+                          maximum: 1048575
+                      required:
+                      - lowerBound
+                      - upperBound
+                      type: object
+                    type: array
+                type: object
+              vrf:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    routeDistinguisher:
+                      type: string
+                    routeTarget:
+                      items:
+                        properties:
+                          direction:
+                            enum:
+                            - Both
+                            - Export
+                            - Import
+                            type: string
+                          id:
+                            type: string
+                        required:
+                        - id
+                        type: object
+                      type: array
+                    segmentRoutingSrv6:
+                      properties:
+                        prefix:
+                          type: string
+                        sidType:
+                          enum:
+                          - ClassicSid
+                          - USid
+                          type: string
+                      type: object
+                    vrfAddressFamily:
+                      items:
+                        properties:
+                          afi:
+                            enum:
+                            - Ipv4
+                            - Ipv6
+                            type: string
+                          autoSummary:
+                            type: boolean
+                          network:
+                            items:
+                              properties:
+                                address:
+                                  type: string
+                                policy:
+                                  type: string
+                              required:
+                              - address
+                              type: object
+                            type: array
+                          networkSynchronization:
+                            type: boolean
+                          peer:
+                            items:
+                              properties:
+                                activate:
+                                  type: boolean
+                                address:
+                                  type: string
+                                allowAsIn:
+                                  type: integer
+                                  minimum: 1
+                                  maximum: 10
+                                allowEbgpVpn:
+                                  type: boolean
+                                asOverride:
+                                  type: boolean
+                                attributeUnchanged:
+                                  type: integer
+                                bfd:
+                                  properties:
+                                    enable:
+                                      type: boolean
+                                    multihop:
+                                      type: boolean
+                                  type: object
+                                connectRetryInterval:
+                                  type: integer
+                                  minimum: 1
+                                  maximum: 65535
+                                description:
+                                  type: string
+                                ebgpMultihop:
+                                  properties:
+                                    enabled:
+                                      type: boolean
+                                    multihopTtl:
+                                      type: integer
+                                      minimum: 1
+                                      maximum: 255
+                                  type: object
+                                gracefulRestart:
+                                  properties:
+                                    restartTime:
+                                      type: integer
+                                      minimum: 1
+                                      maximum: 3600
+                                  type: object
+                                gracefulRestartHelper:
+                                  enum:
+                                  - Disable
+                                  - Enable
+                                  type: string
+                                holdTime:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 65535
+                                keepaliveInterval:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 65535
+                                localAs:
+                                  type: integer
+                                  minimum: 1
+                                  maximum: 4294967295
+                                localAsOptions:
+                                  type: integer
+                                minimumAdvertisementInterval:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 65535
+                                orfMode:
+                                  enum:
+                                  - Both
+                                  - Receive
+                                  - Send
+                                  type: string
+                                passive:
+                                  type: boolean
+                                password:
+                                  type: string
+                                policy:
+                                  items:
+                                    properties:
+                                      direction:
+                                        enum:
+                                        - In
+                                        - Out
+                                        type: string
+                                      name:
+                                        type: string
+                                    required:
+                                    - name
+                                    - direction
+                                    type: object
+                                  type: array
+                                prefixLimit:
+                                  properties:
+                                    dropExcess:
+                                      type: string
+                                    idleTimeout:
+                                      type: integer
+                                      minimum: 0
+                                      maximum: 2400
+                                    maximumPrefixes:
+                                      type: integer
+                                      minimum: 1
+                                      maximum: 4294967295
+                                    teardownThreshold:
+                                      type: string
+                                    warningOnly:
+                                      type: boolean
+                                  type: object
+                                prefixList:
+                                  items:
+                                    properties:
+                                      direction:
+                                        type: integer
+                                      name:
+                                        type: string
+                                    required:
+                                    - name
+                                    - direction
+                                    type: object
+                                  type: array
+                                remoteAs:
+                                  type: integer
+                                  minimum: 1
+                                  maximum: 4294967295
+                                removePrivateAs:
+                                  type: boolean
+                                routeReflectorClient:
+                                  type: boolean
+                                siteOriginId:
+                                  type: string
+                                softReconfigurationInbound:
+                                  type: boolean
+                                unsuppress:
+                                  properties:
+                                    policy:
+                                      type: string
+                                  type: object
+                                updateSourceInterface:
+                                  type: string
+                              required:
+                              - address
+                              type: object
+                            type: array
+                          redistribute:
+                            items:
+                              properties:
+                                instance:
+                                  items:
+                                    properties:
+                                      policy:
+                                        type: string
+                                      tag:
+                                        type: string
+                                    required:
+                                    - tag
+                                    type: object
+                                  type: array
+                                policy:
+                                  type: string
+                                protocol:
+                                  enum:
+                                  - Connected
+                                  - Isis
+                                  - Kernel
+                                  - Ospf
+                                  - Rip
+                                  - Static
+                                  type: string
+                              required:
+                              - protocol
+                              type: object
+                            type: array
+                          safi:
+                            enum:
+                            - Unicast
+                            type: string
+                          synchronization:
+                            type: boolean
+                        required:
+                        - afi
+                        - safi
+                        type: object
+                      type: array
+                  required:
+                  - name
+                  type: object
+                type: array
+            required:
+            - as
+            type: object
+          status:
+            description: observed state of the crd
+            properties:
+              state:
+                enum:
+                - InSync
+                - Reconciling
+                type: string
+            required:
+            - state
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

@@ -13,7 +13,8 @@ spec:
     listKind: HelloParamsList
     plural: helloparams
     shortNames:
-    - helloparams
+    - hp
+    - hps
     singular: helloparams
   scope: Namespaced
   versions:
