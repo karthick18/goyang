@@ -97,7 +97,6 @@ done
 yang_paths=$(echo $module_paths | xargs | sed 's/ /,/g')
 if [ x"$CRD_NAME" = "x" ]; then
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, output directory $OUTPUT_DIR"
-    echo "./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL"
     ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL
 else
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, crd name $CRD_NAME, output directory $OUTPUT_DIR"

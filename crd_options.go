@@ -16,7 +16,7 @@ type CrdOptions struct {
 	Key            string
 	Config         bool
 	SkipReconcile  bool
-	Augmentors     string
+	Augmentor      string
 }
 
 func getDefaultOptions() *CrdOptions {
@@ -37,11 +37,11 @@ func parseOptions(options string) *CrdOptions {
 	parts := strings.Split(options, ",")
 
 	kvstore := map[string]*string{
-		"root":       &crdOption.Root,
-		"instance":   &crdOption.Instance,
-		"name":       &crdOption.Name,
-		"key":        &crdOption.Key,
-		"augmentors": &crdOption.Augmentors,
+		"root":      &crdOption.Root,
+		"instance":  &crdOption.Instance,
+		"name":      &crdOption.Name,
+		"key":       &crdOption.Key,
+		"augmentor": &crdOption.Augmentor,
 	}
 
 	for _, part := range parts {

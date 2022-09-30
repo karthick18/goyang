@@ -73,8 +73,8 @@ func generateMetadata(filename, namespace string, options *CrdOptions) error {
 
 	var augmentationMap map[string]interface{}
 
-	if options.Augmentors != "" {
-		augmentationData, err := ioutil.ReadFile(options.Augmentors)
+	if options.Augmentor != "" {
+		augmentationData, err := ioutil.ReadFile(options.Augmentor)
 		if err != nil {
 			return fmt.Errorf("%w: error reading augmentation data", err)
 		}
