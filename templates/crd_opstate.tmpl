@@ -20,6 +20,19 @@ spec:
   scope: Namespaced
   versions:
   - name: v1alpha1
+    additionalPrinterColumns:
+      - jsonPath: .metadata.annotations.netconf\.ciena\.com/target
+        name: target
+        priority: 0
+        type: string
+      - jsonPath: .status.state
+        name: status
+        priority: 0
+        type: string
+      - jsonPath: .metadata.creationTimestamp
+        name: age
+        priority: 0
+        type: date
     schema:
       openAPIV3Schema:
         properties:
@@ -36,11 +49,6 @@ spec:
           metadata:
             type: object
           spec:
-            properties:
-              period:
-                type: string
-            required:
-            - period
             type: object
           status:
             properties:
@@ -48,6 +56,16 @@ spec:
                 type: array
                 items:
 {{ GetStatusFields 18 }}
+              timestamp:
+                type: string
+                format: date-time
+              state:
+                enum:
+                - Synchronized
+                - Failed
+                - UnreachableTarget
+                - InvalidTargetConfig
+                type: string
             required:
             - operationalState
             type: object

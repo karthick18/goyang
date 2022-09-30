@@ -18,6 +18,19 @@ spec:
   scope: Namespaced
   versions:
   - name: v1alpha1
+    additionalPrinterColumns:
+      - jsonPath: .metadata.annotations.netconf\.ciena\.com/target
+        name: target
+        priority: 0
+        type: string
+      - jsonPath: .status.state
+        name: status
+        priority: 0
+        type: string
+      - jsonPath: .metadata.creationTimestamp
+        name: age
+        priority: 0
+        type: date
     schema:
       openAPIV3Schema:
         properties:
@@ -37,6 +50,8 @@ spec:
             properties:
               config:
                 properties:
+                  adminStatus:
+                    type: boolean
                   description:
                     type: string
                   enabled:
@@ -47,7 +62,19 @@ spec:
                     maximum: 65535
                   name:
                     type: string
+                  role:
+                    type: string
                   type:
+                    enum:
+                    - Any
+                    - Ettp
+                    - Ip
+                    - IpTunnel
+                    - IpUnnumbered
+                    - Lag
+                    - Loopback
+                    - PointToPoint
+                    - System
                     type: string
                   underlayBinding:
                     properties:
@@ -57,6 +84,8 @@ spec:
                             type: string
                         type: object
                     type: object
+                  vrfName:
+                    type: string
                 type: object
               holdTime:
                 properties:
@@ -227,11 +256,7 @@ spec:
               state:
                 properties:
                   adminStatus:
-                    enum:
-                    - DOWN
-                    - TESTING
-                    - UP
-                    type: string
+                    type: boolean
                   counters:
                     properties:
                       carrierTransitions:
@@ -293,7 +318,21 @@ spec:
                     - UNKNOWN
                     - UP
                     type: string
+                  role:
+                    type: string
                   type:
+                    enum:
+                    - Any
+                    - Ettp
+                    - Ip
+                    - IpTunnel
+                    - IpUnnumbered
+                    - Lag
+                    - Loopback
+                    - PointToPoint
+                    - System
+                    type: string
+                  vrfName:
                     type: string
                 type: object
               subinterfaces:
@@ -317,11 +356,7 @@ spec:
                         state:
                           properties:
                             adminStatus:
-                              enum:
-                              - DOWN
-                              - TESTING
-                              - UP
-                              type: string
+                              type: boolean
                             counters:
                               properties:
                                 carrierTransitions:
@@ -399,6 +434,8 @@ spec:
                 enum:
                 - InSync
                 - Reconciling
+                - UnreachableTarget
+                - InvalidTargetConfig
                 type: string
             required:
             - state

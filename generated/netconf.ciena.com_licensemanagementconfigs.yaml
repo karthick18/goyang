@@ -19,6 +19,19 @@ spec:
   scope: Namespaced
   versions:
   - name: v1alpha1
+    additionalPrinterColumns:
+      - jsonPath: .metadata.annotations.netconf\.ciena\.com/target
+        name: target
+        priority: 0
+        type: string
+      - jsonPath: .status.state
+        name: status
+        priority: 0
+        type: string
+      - jsonPath: .metadata.creationTimestamp
+        name: age
+        priority: 0
+        type: date
     schema:
       openAPIV3Schema:
         properties:
@@ -80,6 +93,8 @@ spec:
                 enum:
                 - InSync
                 - Reconciling
+                - UnreachableTarget
+                - InvalidTargetConfig
                 type: string
             required:
             - state
