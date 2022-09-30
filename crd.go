@@ -58,6 +58,7 @@ var (
 	rootNodeModel     string
 	instanceNodeModel string
 	crdName           string
+	metadataNamespace string
 	outputDirectory   string
 	noConfig          bool
 	crdTemplate       string
@@ -71,6 +72,7 @@ func init() {
 	opt.StringVarLong(&outputDirectory, "output-dir", 'd', "specify output directory name for generating openapiv3 schema. Defaults to current directory.")
 	opt.BoolVarLong(&noConfig, "no-config", 'o', "enable crd generation with config false. An example could be querying operational status.")
 	opt.StringVarLong(&crdTemplate, "crd-template", 'l', "specify template file to generate the crd schema.")
+	opt.StringVarLong(&metadataNamespace, "metadata-namespace", 'm', "specify metadata namespace to generate the crd metadata.")
 
 	register(&formatter{
 		name:               "crd",
@@ -176,7 +178,7 @@ func doCrd(w io.Writer, entries []*yang.Entry, filename string, opts ...string) 
 		generateStatus(crdOptions, processEntry)
 	}
 
-	if err := generateMetadata(filename, "default", crdOptions); err != nil {
+	if err := generateMetadata(filename, metadataNamespace, crdOptions); err != nil {
 		panic(err.Error())
 	}
 }

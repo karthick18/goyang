@@ -42,6 +42,10 @@ type yangMetadata struct {
 }
 
 func generateMetadata(filename, namespace string, options *CrdOptions) error {
+	if namespace == "" {
+		namespace = "default"
+	}
+
 	name := strings.ToLower(options.Name) + "-meta"
 	metadata := yangMetadata{
 		Name:      name,
