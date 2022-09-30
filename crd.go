@@ -172,6 +172,8 @@ func doCrd(w io.Writer, entries []*yang.Entry, filename string, opts ...string) 
 		crdOptions.Key = key
 	}
 
+	crdOptions.Key = yang.CamelCase(crdOptions.Key, false)
+
 	if !noConfig {
 		generateSpec(crdOptions, processEntry)
 	} else {
