@@ -179,7 +179,8 @@ func doCrd(w io.Writer, entries []*yang.Entry, filename string, opts ...string) 
 	}
 
 	if err := generateMetadata(filename, metadataNamespace, crdOptions); err != nil {
-		panic(err.Error())
+		fmt.Fprintf(os.Stderr, "generating metadata failed with error: %s\n", err.Error())
+		os.Exit(1)
 	}
 }
 
