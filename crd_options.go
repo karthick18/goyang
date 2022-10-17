@@ -13,18 +13,29 @@ type fileOption struct {
 type CrdOptions struct {
 	Root, Instance string
 	Name           string
+	Group          string
 	Key            string
 	Config         bool
 	SkipReconcile  bool
 	Augmentor      string
 }
 
+const (
+	DefaultGroupName = "netconf.ciena.com"
+)
+
 func getDefaultOptions() *CrdOptions {
+	groupName := crdGroup
+	if groupName == "" {
+		groupName = DefaultGroupName
+	}
+
 	return &CrdOptions{
 		Root:     rootNodeModel,
 		Instance: instanceNodeModel,
 		Config:   !noConfig,
 		Name:     crdName,
+		Group:    groupName,
 	}
 }
 
@@ -42,6 +53,7 @@ func parseOptions(options string) *CrdOptions {
 		"name":      &crdOption.Name,
 		"key":       &crdOption.Key,
 		"augmentor": &crdOption.Augmentor,
+		"group":     &crdOption.Group,
 	}
 
 	for _, part := range parts {

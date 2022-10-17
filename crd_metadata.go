@@ -21,8 +21,8 @@ metadata:
 spec:
   reference:
     kind: {{.Kind}}
-    group: netconf.ciena.com
-    apiVersion: netconf.ciena.com/v1alpha1
+    group: {{.Group}}
+    apiVersion: {{.Group}}/v1alpha1
   wrapper:
     config: {{.Config}}
     xmlRequestName: "{{.Root}}"
@@ -39,6 +39,7 @@ type yangMetadata struct {
 	Root, Instance        string
 	Key                   string
 	Model                 string
+	Group                 string
 }
 
 func generateMetadata(filename, namespace string, options *CrdOptions) error {
@@ -56,6 +57,7 @@ func generateMetadata(filename, namespace string, options *CrdOptions) error {
 		Instance:  options.Instance,
 		Key:       options.Key,
 		Model:     path.Base(filename),
+		Group:     options.Group,
 	}
 
 	tmpl, err := template.New("metadata").Parse(metadataToYaml)
@@ -111,7 +113,7 @@ func generateMetadata(filename, namespace string, options *CrdOptions) error {
 	data := "---\n" + buf.String()
 
 	outputDirectory = getOutputDirectory()
-	metadataFileName := fmt.Sprintf("%s/netconf.ciena.com_%s_meta.yaml", outputDirectory, pluralize(options.Name))
+	metadataFileName := fmt.Sprintf("%s/%s_%s_meta.yaml", outputDirectory, options.Group, pluralize(options.Name))
 
 	err = os.WriteFile(metadataFileName, []byte(data), 0666)
 	if err != nil {

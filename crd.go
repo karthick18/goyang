@@ -62,6 +62,7 @@ var (
 	outputDirectory   string
 	noConfig          bool
 	crdTemplate       string
+	crdGroup          string
 )
 
 func init() {
@@ -73,7 +74,7 @@ func init() {
 	opt.BoolVarLong(&noConfig, "no-config", 'o', "enable crd generation with config false. An example could be querying operational status.")
 	opt.StringVarLong(&crdTemplate, "crd-template", 'l', "specify template file to generate the crd schema.")
 	opt.StringVarLong(&metadataNamespace, "metadata-namespace", 'm', "specify metadata namespace to generate the crd metadata.")
-
+	opt.StringVarLong(&crdGroup, "group", 'u', "specify group name for crd creation.")
 	register(&formatter{
 		name:               "crd",
 		flags:              opt,
@@ -332,10 +333,9 @@ func executeTemplate(options *CrdOptions, spec, status string) {
 
 	crdName = yang.CamelCase(crdName, true)
 	options.Name = crdName
-
 	config := crdConfig{
 		CrdName: crdName,
-		Group:   "netconf.ciena.com",
+		Group:   options.Group,
 	}
 
 	config.ShortNames = getShortNames(crdName)
