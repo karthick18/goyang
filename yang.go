@@ -203,14 +203,18 @@ Formats:
 
 	if !multiMode {
 		moduleName := ""
+		moduleOptions := ""
 		dependencies := []string{}
 		for _, fopt := range fileOptions {
 			name := fopt.Name()
+			opts := fopt.Options()
+
 			if err := ms.Read(name); err != nil {
 				continue
 			}
 			if moduleName == "" {
 				moduleName = name
+				moduleOptions = opts
 			} else {
 				dependencies = append(dependencies, name)
 			}
@@ -245,7 +249,7 @@ Formats:
 			entries[x] = yang.ToEntry(mods[n])
 		}
 
-		formatters[format].f(os.Stdout, entries, moduleName, dependencies)
+		formatters[format].f(os.Stdout, entries, moduleName, dependencies, moduleOptions)
 	} else {
 		if formatters[format].validateArgs != nil {
 			if err := formatters[format].validateArgs(files); err != nil {
