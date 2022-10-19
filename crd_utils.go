@@ -132,6 +132,42 @@ func getRootInstanceEntry(entry *yang.Entry) (string, string, *yang.Entry, error
 	return "", "", nil, fmt.Errorf("%w: could not find root/instance node", ErrNodeNotFound)
 }
 
+func dumpRootInstanceEntry(entry *yang.Entry) {
+	for name, node := range entry.Dir {
+		if node.IsList() {
+			fmt.Println("list", "root", name, "instance", name)
+			continue
+		}
+
+		if node.IsContainer() {
+			if len(node.Dir) == 0 {
+				fmt.Println("single-container", "root", name, "instance", name)
+
+				continue
+			}
+
+			root := name
+			instance := ""
+
+			for n, d := range node.Dir {
+				if d.IsList() {
+					if instance == "" {
+						instance = n
+					} else {
+						instance += "," + n
+					}
+				}
+			}
+
+			if instance == "" {
+				instance = root
+			}
+
+			fmt.Println("container", "root", root, "instance", instance)
+		}
+	}
+}
+
 func getOutputDirectory() string {
 	if outputDirectory == "" {
 		path, err := os.Getwd()

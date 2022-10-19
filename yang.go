@@ -57,7 +57,7 @@ import (
 // be called once with the set of yang Entry trees generated.
 type formatter struct {
 	name               string
-	f                  func(io.Writer, []*yang.Entry, string, ...string)
+	f                  func(io.Writer, []*yang.Entry, string, []string, ...string)
 	validateArgs       func(files []string) error
 	extractFileOptions func(files []string) []FileOption
 	help               string
@@ -96,6 +96,7 @@ func main() {
 	var paths []string
 	var ignoreSubmoduleCircularDependencies bool
 	var ignoreModuleResolveErrors bool
+	var multiMode bool
 
 	getopt.ListVarLong(&paths, "path", 'p', "comma separated list of directories to add to search path", "DIR[,DIR...]")
 	getopt.StringVarLong(&format, "format", 'f', "format to display: "+strings.Join(formats, ", "), "FORMAT")
@@ -103,6 +104,7 @@ func main() {
 	getopt.BoolVarLong(&ignoreModuleResolveErrors, "ignore-resolve-errors", 'i', "ignore module resolve errors")
 	getopt.BoolVarLong(&help, "help", 'h', "display help")
 	getopt.BoolVarLong(&ignoreSubmoduleCircularDependencies, "ignore-circdep", 'g', "ignore circular dependencies between submodules")
+	getopt.BoolVarLong(&multiMode, "multi", 'x', "multi file mode where each file in the argument list is treated and parsed separately")
 	getopt.SetParameters("[FORMAT OPTIONS] [SOURCE] [...]")
 
 	if err := getopt.Getopt(func(o getopt.Option) bool {
@@ -178,14 +180,6 @@ Formats:
 
 	files := getopt.Args()
 
-	if formatters[format].validateArgs != nil {
-		if err := formatters[format].validateArgs(files); err != nil {
-			fmt.Fprintf(os.Stderr, "%s: validate error %s", format, err)
-
-			stop(1)
-		}
-	}
-
 	var fileOptions []FileOption
 
 	if len(files) == 0 {
@@ -207,15 +201,26 @@ Formats:
 		}
 	}
 
-	for _, fopt := range fileOptions {
-		name := fopt.Name()
-		opts := fopt.Options()
-
-		if err := ms.Read(name); err != nil {
-			if !strings.Contains(err.Error(), "duplicate") {
-				fmt.Fprintln(os.Stderr, err)
-
+	if !multiMode {
+		moduleName := ""
+		dependencies := []string{}
+		for _, fopt := range fileOptions {
+			name := fopt.Name()
+			if err := ms.Read(name); err != nil {
 				continue
+			}
+			if moduleName == "" {
+				moduleName = name
+			} else {
+				dependencies = append(dependencies, name)
+			}
+		}
+
+		if formatters[format].validateArgs != nil {
+			if err := formatters[format].validateArgs([]string{moduleName}); err != nil {
+				fmt.Fprintf(os.Stderr, "%s: validate error %s", format, err)
+
+				stop(1)
 			}
 		}
 
@@ -233,16 +238,62 @@ Formats:
 				names = append(names, m.Name)
 			}
 		}
+
 		sort.Strings(names)
 		entries := make([]*yang.Entry, len(names))
 		for x, n := range names {
 			entries[x] = yang.ToEntry(mods[n])
 		}
 
-		if opts == "" {
-			formatters[format].f(os.Stdout, entries, name)
-		} else {
-			formatters[format].f(os.Stdout, entries, name, opts)
+		formatters[format].f(os.Stdout, entries, moduleName, dependencies)
+	} else {
+		if formatters[format].validateArgs != nil {
+			if err := formatters[format].validateArgs(files); err != nil {
+				fmt.Fprintf(os.Stderr, "%s: validate error %s", format, err)
+
+				stop(1)
+			}
+		}
+
+		var dependencies []string
+
+		for _, fopt := range fileOptions {
+			name := fopt.Name()
+			opts := fopt.Options()
+
+			if err := ms.Read(name); err != nil {
+				if !strings.Contains(err.Error(), "duplicate") {
+					fmt.Fprintln(os.Stderr, err)
+
+					continue
+				}
+			}
+
+			// Process the read files, exiting if any errors were found.
+			exitIfError(ms.Process())
+
+			// Keep track of the top level modules we read in.
+			// Those are the only modules we want to print below.
+			mods := map[string]*yang.Module{}
+			var names []string
+
+			for _, m := range ms.Modules {
+				if mods[m.Name] == nil {
+					mods[m.Name] = m
+					names = append(names, m.Name)
+				}
+			}
+			sort.Strings(names)
+			entries := make([]*yang.Entry, len(names))
+			for x, n := range names {
+				entries[x] = yang.ToEntry(mods[n])
+			}
+
+			if opts == "" {
+				formatters[format].f(os.Stdout, entries, name, dependencies)
+			} else {
+				formatters[format].f(os.Stdout, entries, name, dependencies, opts)
+			}
 		}
 	}
 }

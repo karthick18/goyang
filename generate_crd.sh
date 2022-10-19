@@ -16,6 +16,7 @@ Usage: $this -r root_node -c crd_node yang_model_file
   -t crd_template is the template file to use to generate the crd schema
   -m metadata namespace to generate crd metadata
   -g crd group name
+  -f format tree
   yang_model_file is the yang model parsed to generate the openapi v3 k8s crd schema
 EOF
     exit 2
@@ -24,14 +25,16 @@ EOF
 parse_args() {
     OUTPUT_DIR=$(cd $(dirname "$0"); pwd)
 
-    while getopts "h?c:r:p:d:n:ot:m:g:" arg; do
+    while getopts "h?c:r:p:d:n:ot:m:g:f:x" arg; do
 	case "$arg" in
+	    f) FORMAT="$OPTARG";;
 	    p) YANG_MODEL_PATH="$OPTARG" ;;
 	    r) ROOT="$OPTARG" ;;
 	    c) CRD="$OPTARG" ;;
 	    n) CRD_NAME="$OPTARG" ;;
 	    d) OUTPUT_DIR="$OPTARG" ;;
             o) NO_CONFIG="-o";;
+	    x) MULTI_MODE="-x";;
 	    t) CRD_TEMPLATE="$OPTARG";;
 	    m) METADATA_NAMESPACE="$OPTARG";;
 	    g) CRD_GROUP="$OPTARG";;
@@ -43,10 +46,28 @@ parse_args() {
     YANG_MODEL=$@
 }
 
-validate_args() {
+ validate_args() {
     if [ x"$YANG_MODEL_PATH" = "x" ]; then
 	echo "path needs to be specified"
 	usage "$0"
+    fi
+
+    if [ x"$YANG_MODEL" = "x" ]; then
+	echo "yang model files need to be specified"
+	usage "$0"
+    fi
+
+    if [ ! -d $YANG_MODEL_PATH ]; then
+	echo "Path $YANG_MODEL_PATH does not exist"
+	exit 2
+    fi
+
+    if [ x"$FORMAT" = "x" ]; then
+	FORMAT=crd
+    fi
+
+    if [ "$FORMAT" = "tree" ]; then
+	return
     fi
     
     if [ x"$CRD" = "x" ]; then
@@ -60,16 +81,6 @@ validate_args() {
 
     if [ x"$ROOT" = "x" ]; then
 	echo "root node would be derived"
-    fi
-
-    if [ x"$YANG_MODEL" = "x" ]; then
-	echo "yang model files need to be specified"
-	usage "$0"
-    fi
-
-    if [ ! -d $YANG_MODEL_PATH ]; then
-	echo "Path $YANG_MODEL_PATH does not exist"
-	exit 2
     fi
 
     if [ ! -f $CRD_TEMPLATE ]; then
@@ -103,10 +114,21 @@ for path in $paths; do
 done
 
 yang_paths=$(echo $module_paths | xargs | sed 's/ /,/g')
+
+if [ "$FORMAT" = "tree" ]; then
+    ./goyang --format tree --ignore-circdep --ignore-resolve-errors --path=$yang_paths $YANG_MODEL
+    exit $?
+fi
+
+if [ "$FORMAT" = "rpc" ]; then
+    ./goyang --format rpc --ignore-circdep --ignore-resolve-errors --path=$yang_paths $YANG_MODEL
+    exit $?
+fi
+
 if [ x"$CRD_NAME" = "x" ]; then
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, group $CRD_GROUP, output directory $OUTPUT_DIR"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR -u $CRD_GROUP $NO_CONFIG $YANG_MODEL
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR -u $CRD_GROUP $NO_CONFIG $MULTI_MODE $YANG_MODEL
 else
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, crd name $CRD_NAME, group $CRD_GROUP, output directory $OUTPUT_DIR"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -n "$CRD_NAME" -u $CRD_GROUP -d $OUTPUT_DIR $NO_CONFIG $YANG_MODEL
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -n "$CRD_NAME" -u $CRD_GROUP -d $OUTPUT_DIR $NO_CONFIG $MULTI_MODE $YANG_MODEL
 fi

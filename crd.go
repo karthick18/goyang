@@ -85,7 +85,7 @@ func init() {
 	})
 }
 
-func doCrd(w io.Writer, entries []*yang.Entry, filename string, opts ...string) {
+func doCrd(w io.Writer, entries []*yang.Entry, filename string, dependencies []string, opts ...string) {
 	base := path.Base(filename)
 	fileBaseName := base[:len(base)-len(path.Ext(base))]
 	options := ""
@@ -181,7 +181,7 @@ func doCrd(w io.Writer, entries []*yang.Entry, filename string, opts ...string) 
 		generateStatus(crdOptions, processEntry)
 	}
 
-	if err := generateMetadata(filename, metadataNamespace, crdOptions); err != nil {
+	if err := generateMetadata(filename, dependencies, metadataNamespace, crdOptions); err != nil {
 		fmt.Fprintf(os.Stderr, "generating metadata failed with error: %s\n", err.Error())
 		os.Exit(1)
 	}

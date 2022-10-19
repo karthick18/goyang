@@ -42,7 +42,7 @@ type yangMetadata struct {
 	Group                 string
 }
 
-func generateMetadata(filename, namespace string, options *CrdOptions) error {
+func generateMetadata(filename string, dependencies []string, namespace string, options *CrdOptions) error {
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -93,6 +93,10 @@ func generateMetadata(filename, namespace string, options *CrdOptions) error {
 
 	spec := yamlMap["spec"].(map[interface{}]interface{})
 	specWrapper := spec["wrapper"].(map[interface{}]interface{})
+
+	if len(dependencies) > 0 {
+		specWrapper["moduleDependencies"] = dependencies
+	}
 
 	if options.Key == "internal" && options.Config {
 		specWrapper["skipReconcile"] = true
