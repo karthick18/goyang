@@ -29,7 +29,7 @@ spec:
     xmlName: "{{.Instance}}"
     keyField: "{{.Key}}"
     module: "{{.Model}}"
-    moduleSearchPath: "yang"
+    moduleSearchPath: "{{.ModelSearchPath}}"
 `
 )
 
@@ -40,6 +40,7 @@ type yangMetadata struct {
 	Key                   string
 	Model                 string
 	Group                 string
+	ModelSearchPath       string
 }
 
 func generateMetadata(filename string, dependencies []string, namespace string, options *CrdOptions) error {
@@ -49,15 +50,16 @@ func generateMetadata(filename string, dependencies []string, namespace string, 
 
 	name := strings.ToLower(options.Name) + "-meta"
 	metadata := yangMetadata{
-		Name:      name,
-		Namespace: namespace,
-		Kind:      options.Name,
-		Config:    options.Config,
-		Root:      options.Root,
-		Instance:  options.Instance,
-		Key:       options.Key,
-		Model:     path.Base(filename),
-		Group:     options.Group,
+		Name:            name,
+		Namespace:       namespace,
+		Kind:            options.Name,
+		Config:          options.Config,
+		Root:            options.Root,
+		Instance:        options.Instance,
+		Key:             options.Key,
+		Model:           path.Base(filename),
+		Group:           options.Group,
+		ModelSearchPath: getRelativePathWithBase("yang", options.ModuleSearchPath),
 	}
 
 	tmpl, err := template.New("metadata").Parse(metadataToYaml)

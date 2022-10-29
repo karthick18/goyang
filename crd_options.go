@@ -11,13 +11,14 @@ type fileOption struct {
 }
 
 type CrdOptions struct {
-	Root, Instance string
-	Name           string
-	Group          string
-	Key            string
-	Config         bool
-	SkipReconcile  bool
-	Augmentor      string
+	Root, Instance   string
+	Name             string
+	Group            string
+	Key              string
+	Config           bool
+	SkipReconcile    bool
+	Augmentor        string
+	ModuleSearchPath string
 }
 
 const (
@@ -31,11 +32,12 @@ func getDefaultOptions() *CrdOptions {
 	}
 
 	return &CrdOptions{
-		Root:     rootNodeModel,
-		Instance: instanceNodeModel,
-		Config:   !noConfig,
-		Name:     crdName,
-		Group:    groupName,
+		Root:             rootNodeModel,
+		Instance:         instanceNodeModel,
+		Config:           !noConfig,
+		Name:             crdName,
+		Group:            groupName,
+		ModuleSearchPath: moduleSearchPath,
 	}
 }
 

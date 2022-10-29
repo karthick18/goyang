@@ -127,8 +127,8 @@ fi
 
 if [ x"$CRD_NAME" = "x" ]; then
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, group $CRD_GROUP, output directory $OUTPUT_DIR"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR -u $CRD_GROUP $NO_CONFIG $MULTI_MODE $YANG_MODEL
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --module-search-path $YANG_MODEL_PATH --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -d $OUTPUT_DIR -u $CRD_GROUP $NO_CONFIG $MULTI_MODE $YANG_MODEL
 else
     echo "Generating crd for $YANG_MODEL with search paths under $YANG_MODEL_PATH, template $CRD_TEMPLATE, root node $ROOT, crd node $CRD, crd name $CRD_NAME, group $CRD_GROUP, output directory $OUTPUT_DIR"
-    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -n "$CRD_NAME" -u $CRD_GROUP -d $OUTPUT_DIR $NO_CONFIG $MULTI_MODE $YANG_MODEL
+    ./goyang --format crd --ignore-circdep --ignore-resolve-errors --module-search-path $YANG_MODEL_PATH --crd-template=$CRD_TEMPLATE --path=$yang_paths -m "$METADATA_NAMESPACE" -r "$ROOT" -c "$CRD" -n "$CRD_NAME" -u $CRD_GROUP -d $OUTPUT_DIR $NO_CONFIG $MULTI_MODE $YANG_MODEL
 fi

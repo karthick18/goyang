@@ -63,12 +63,14 @@ var (
 	noConfig          bool
 	crdTemplate       string
 	crdGroup          string
+	moduleSearchPath  string
 )
 
 func init() {
 	opt := getopt.New()
 	opt.StringVarLong(&rootNodeModel, "root-node", 'r', "specify root node for the yang model")
 	opt.StringVarLong(&instanceNodeModel, "crd-node", 'c', "specify crd node for the yang model")
+	opt.StringVarLong(&moduleSearchPath, "module-search-path", 'b', "specify the top level module search path for imports and yang modules")
 	opt.StringVarLong(&crdName, "crd-name", 'n', "specify crd name for openapiv3 schema")
 	opt.StringVarLong(&outputDirectory, "output-dir", 'd', "specify output directory name for generating openapiv3 schema. Defaults to current directory.")
 	opt.BoolVarLong(&noConfig, "no-config", 'o', "enable crd generation with config false. An example could be querying operational status.")

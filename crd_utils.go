@@ -203,3 +203,36 @@ func validateArgs(files []string) error {
 
 	return nil
 }
+
+// returns a relative path from base including the base
+func getRelativePathWithBase(base, path string) string {
+	paths := strings.Split(path, "/")
+	dirs := []string{}
+	for _, d := range paths {
+		if d == "" {
+			continue
+		}
+		dirs = append(dirs, d)
+	}
+
+	if len(dirs) == 0 {
+		return base
+	}
+
+	baseIndex := -1
+	for i, d := range dirs {
+		if d == base {
+			baseIndex = i + 1
+			break
+		}
+	}
+
+	if baseIndex == -1 || baseIndex >= len(dirs) {
+		return base
+	}
+
+	res := []string{base}
+	res = append(res, dirs[baseIndex:]...)
+
+	return strings.Join(res, "/")
+}
