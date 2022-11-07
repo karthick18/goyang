@@ -54,11 +54,14 @@ spec:
             properties:
               state:
                 enum:
-                - InSync
+                - Synchronized
                 - Reconciling
                 - UnreachableTarget
                 - InvalidTargetConfig
                 type: string
+              synchronizedTimestamp:
+                type: string
+                format: date-time
             required:
             - state
             type: object
